@@ -37,6 +37,15 @@ etf_df.head(3)
       <th>ter</th>
       <th>replication</th>
       <th>size</th>
+      <th>asset</th>
+      <th>instrument</th>
+      <th>region</th>
+      <th>at_gettex</th>
+      <th>at_xetra</th>
+      <th>at_london</th>
+      <th>at_euronext</th>
+      <th>at_stuttgart</th>
+      <th>at_six</th>
       <th>yesterday</th>
       <th>last_week</th>
       <th>last_month</th>
@@ -79,6 +88,15 @@ etf_df.head(3)
       <td>2.5</td>
       <td>Physically backed</td>
       <td>28</td>
+      <td>Cryptocurrencies</td>
+      <td>ETN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
       <td>-36.98</td>
       <td>0.00</td>
       <td>-26.43</td>
@@ -119,6 +137,15 @@ etf_df.head(3)
       <td>2.5</td>
       <td>Physically backed</td>
       <td>111</td>
+      <td>Cryptocurrencies</td>
+      <td>ETN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>True</td>
+      <td>False</td>
+      <td>True</td>
+      <td>False</td>
+      <td>True</td>
       <td>-48.79</td>
       <td>-5.50</td>
       <td>-34.55</td>
@@ -159,6 +186,15 @@ etf_df.head(3)
       <td>0.3</td>
       <td>Full replication</td>
       <td>468</td>
+      <td>Equity</td>
+      <td>ETF</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>True</td>
+      <td>False</td>
+      <td>False</td>
+      <td>True</td>
       <td>-13.58</td>
       <td>-1.41</td>
       <td>-1.72</td>
