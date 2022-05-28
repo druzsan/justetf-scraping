@@ -16,9 +16,9 @@ the data you get `pandas.DataFrame` with over 2670 rows and following structure:
 etf_df.head(3)
 ```
 
-<table style="border: none;">
+<table>
   <thead>
-    <tr style="text-align: right;">
+    <tr>
       <th></th>
       <th>isin</th>
       <th>wkn</th>
