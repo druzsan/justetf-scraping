@@ -3,20 +3,14 @@ Scraping the justETF [ETF Screener](https://www.justetf.com/en/find-etf.html).
 
 The most part of the project is implemented as
 [Notebook](justetf_scraping/justetf-scraping.ipynb),
-but you can easily refactor this to script.
+but you can easily refactor this to a script.
 
-## Examples
-
-### Overview
+## Usage
 
 After [loading](justetf_scraping/justetf-scraping.ipynb#request),
 [cleanup](justetf_scraping/justetf-scraping.ipynb#cleanup) and
 [enrichment](justetf_scraping/justetf-scraping.ipynb#enrich)
 you get `pandas.DataFrame` with over 2670 rows and following structure:
-
-```python
-etf_df.head(3)
-```
 
 <table>
   <thead>
@@ -221,23 +215,7 @@ etf_df.head(3)
   </tbody>
 </table>
 
-### Statistics
-
-For example, visualize the most frequent indices:
-
-```python
-index_counts = etf_df["index"].value_counts()
-```
-
-```python
-sns.histplot(
-    etf_df[etf_df["index"].isin(index_counts[index_counts > 7].index)],
-    y="index",
-    discrete=True,
-)
-```
-
-![png "Most frequent indices"](images/most-frequent-indices.png)
+For further usage, see [Notebook](justetf_scraping/justetf-scraping.ipynb).
 
 ## Similar Projects
 - https://github.com/AshNL/justETF-overview-scraper
