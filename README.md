@@ -74,7 +74,7 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>21Shares Bitcoin Suisse Index ETP</td>
       <td>21Shares Bitcoin Suisse</td>
       <td>2019-10-04</td>
-      <td>2.645902</td>
+      <td>2.653215</td>
       <td>Long-only</td>
       <td>Switzerland</td>
       <td>USD</td>
@@ -93,12 +93,12 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>False</td>
       <td>True</td>
       <td>True</td>
-      <td>-36.98</td>
-      <td>0.00</td>
-      <td>-26.43</td>
-      <td>-20.32</td>
-      <td>-50.02</td>
-      <td>-13.95</td>
+      <td>-38.90</td>
+      <td>-5.35</td>
+      <td>-28.91</td>
+      <td>-22.74</td>
+      <td>-46.65</td>
+      <td>-19.87</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>129.88</td>
@@ -107,10 +107,10 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>72.57</td>
+      <td>72.54</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>-0.19</td>
+      <td>-0.27</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
@@ -123,7 +123,7 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>21Shares Crypto Basket Index ETP</td>
       <td>21Shares Crypto Basket</td>
       <td>2018-11-21</td>
-      <td>3.514395</td>
+      <td>3.521708</td>
       <td>Long-only</td>
       <td>Switzerland</td>
       <td>USD</td>
@@ -142,13 +142,13 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>True</td>
       <td>False</td>
       <td>True</td>
-      <td>-48.79</td>
-      <td>-5.50</td>
-      <td>-34.55</td>
-      <td>-29.51</td>
-      <td>-60.54</td>
-      <td>-28.84</td>
-      <td>212.12</td>
+      <td>-50.78</td>
+      <td>-6.49</td>
+      <td>-37.14</td>
+      <td>-32.25</td>
+      <td>-57.58</td>
+      <td>-33.83</td>
+      <td>200.00</td>
       <td>NaN</td>
       <td>166.39</td>
       <td>241.24</td>
@@ -156,11 +156,11 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>77.33</td>
-      <td>78.22</td>
+      <td>77.30</td>
+      <td>78.17</td>
       <td>NaN</td>
-      <td>-0.37</td>
-      <td>0.59</td>
+      <td>-0.44</td>
+      <td>0.57</td>
       <td>NaN</td>
     </tr>
     <tr>
@@ -172,7 +172,7 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>iShares AEX UCITS ETF</td>
       <td>AEX®</td>
       <td>2005-11-18</td>
-      <td>16.530833</td>
+      <td>16.538147</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>EUR</td>
@@ -181,7 +181,7 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>Distributing</td>
       <td>0.3</td>
       <td>Full replication</td>
-      <td>468</td>
+      <td>471</td>
       <td>Equity</td>
       <td>ETF</td>
       <td>NaN</td>
@@ -191,26 +191,26 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>False</td>
       <td>False</td>
       <td>True</td>
-      <td>-13.58</td>
-      <td>-1.41</td>
-      <td>-1.72</td>
-      <td>-5.48</td>
-      <td>-14.64</td>
-      <td>-2.44</td>
-      <td>31.91</td>
-      <td>44.49</td>
+      <td>-11.57</td>
+      <td>2.73</td>
+      <td>1.06</td>
+      <td>-3.27</td>
+      <td>-9.75</td>
+      <td>-0.02</td>
+      <td>34.98</td>
+      <td>47.69</td>
       <td>29.89</td>
       <td>5.14</td>
       <td>27.55</td>
       <td>-8.05</td>
-      <td>1.85</td>
+      <td>1.81</td>
       <td>1.78</td>
-      <td>18.34</td>
+      <td>18.44</td>
       <td>20.68</td>
-      <td>17.63</td>
-      <td>-0.13</td>
-      <td>0.47</td>
-      <td>0.43</td>
+      <td>17.65</td>
+      <td>0.00</td>
+      <td>0.51</td>
+      <td>0.46</td>
     </tr>
   </tbody>
 </table>
