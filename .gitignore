@@ -1,6 +1,8 @@
 # Project-specific
 .idea/
 justetf_scraping/justetf.csv
+*.html
+*.xml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
