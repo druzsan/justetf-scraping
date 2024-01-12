@@ -9,13 +9,16 @@ BASE_PARAMS = {
     "start": 0,
     "length": -1,
     "lang": "en",
-    "country": "DE",  # Provides the most data.
+    "country": "DE",
     "universeType": "private",
 }
 
 
-StrategyType = Literal["epg-longOnly", "epg-activeEtfs", "epg-shortAndLeveraged"]
-AssetType = Literal[
+Language = Literal["en", "de", "fr", "it", "es"]
+Country = Literal["DE", "AT", "CH", "GB", "IT", "FR", "ES", "NL", "BE"]
+Universe = Literal["private", "institutional"]
+Strategy = Literal["epg-longOnly", "epg-activeEtfs", "epg-shortAndLeveraged"]
+Asset = Literal[
     "class-equity",
     "class-bonds",
     "class-preciousMetals",
@@ -24,7 +27,7 @@ AssetType = Literal[
     "class-realEstate",
     "class-moneyMarket",
 ]
-RegionType = Literal[
+Region = Literal[
     "Africa",
     "Asia%2BPacific",
     "Eastern%2BEurope",
@@ -34,16 +37,18 @@ RegionType = Literal[
     "North%2BAmerica",
     "World",
 ]
-ExchangeType = Literal["MUND", "XETR", "XLON", "XPAR", "XSTU", "XSWX"]
-InstrumentType = Optional[Literal["ETC", "ETF", "ETN"]]
+Exchange = Literal[
+    "MUND", "XETR", "XLON", "XPAR", "XSTU", "XSWX", "XMIL", "XAMS", "XBRU"
+]
+Instrument = Optional[Literal["ETC", "ETF", "ETN"]]
 
 
-STRATEGIES: Dict[StrategyType, str] = {
+STRATEGIES: Dict[Strategy, str] = {
     "epg-longOnly": "Long-only",
     "epg-activeEtfs": "Active",
     "epg-shortAndLeveraged": "Short & Leveraged",
 }
-ASSETS: Dict[AssetType, str] = {
+ASSETS: Dict[Asset, str] = {
     "class-equity": "Equity",
     "class-bonds": "Bonds",
     "class-preciousMetals": "Precious Metals",
@@ -52,7 +57,7 @@ ASSETS: Dict[AssetType, str] = {
     "class-realEstate": "Real Estate",
     "class-moneyMarket": "Money Market",
 }
-REGIONS: Dict[RegionType, str] = {
+REGIONS: Dict[Region, str] = {
     "Africa": "Africa",
     "Asia%2BPacific": "Asia & Pacific",
     "Eastern%2BEurope": "Eastern Europe",
@@ -62,15 +67,18 @@ REGIONS: Dict[RegionType, str] = {
     "North%2BAmerica": "North America",
     "World": "World",
 }
-EXCHANGES: Dict[ExchangeType, str] = {
-    "MUND": "gettex",  # german gettex exchange
-    "XETR": "xetra",  # german XETRA exchange
-    "XLON": "london",  # London exchange
-    "XPAR": "euronext",  # Euronext Paris exchange
-    "XSTU": "stuttgart",  # Stuttgart exchange
-    "XSWX": "six",  # SIX Swiss exchange
+EXCHANGES: Dict[Exchange, str] = {
+    "MUND": "gettex",
+    "XETR": "XETRA",
+    "XLON": "London",
+    "XPAR": "Euronext Paris",
+    "XSTU": "Stuttgart",
+    "XSWX": "SIX Swiss Exchange",
+    "XMIL": "Borsa Italiana",
+    "XAMS": "Euronext Amsterdam",
+    "XBRU": "Euronext Brussels",
 }
-INSTRUMENTS: Dict[InstrumentType, str] = {
+INSTRUMENTS: Dict[Instrument, str] = {
     "ETC": "ETC",
     "ETF": "ETF",
     "ETN": "ETN",
@@ -78,11 +86,11 @@ INSTRUMENTS: Dict[InstrumentType, str] = {
 
 
 def build_query(
-    strategy: StrategyType = "epg-longOnly",
-    exchange: Optional[Literal[ExchangeType, "any"]] = "any",
-    asset: Optional[AssetType] = None,
-    region: Optional[RegionType] = None,
-    instrument: Optional[InstrumentType] = None,
+    strategy: Strategy = "epg-longOnly",
+    exchange: Optional[Literal[Exchange, "any"]] = "any",
+    asset: Optional[Asset] = None,
+    region: Optional[Region] = None,
+    instrument: Optional[Instrument] = None,
     provider: Optional[str] = None,
     index_provider: Optional[str] = None,
     index: Optional[str] = None,
@@ -132,11 +140,11 @@ def build_query(
 
 
 def make_request(
-    strategy: Optional[StrategyType] = None,
-    exchange: Optional[Literal[ExchangeType, "any"]] = "any",
-    asset: Optional[AssetType] = None,
-    region: Optional[RegionType] = None,
-    instrument: Optional[InstrumentType] = None,
+    strategy: Optional[Strategy] = None,
+    exchange: Optional[Literal[Exchange, "any"]] = "any",
+    asset: Optional[Asset] = None,
+    region: Optional[Region] = None,
+    instrument: Optional[Instrument] = None,
     provider: Optional[str] = None,
     index_provider: Optional[str] = None,
     index: Optional[str] = None,

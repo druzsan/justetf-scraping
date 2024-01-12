@@ -10,7 +10,8 @@ but you can easily refactor this to a script.
 After [loading](justetf_scraping/justetf-scraping.ipynb#request),
 [cleanup](justetf_scraping/justetf-scraping.ipynb#cleanup) and
 [enrichment](justetf_scraping/justetf-scraping.ipynb#enrich)
-you get `pandas.DataFrame` with over 2670 rows and following structure:
+you get `pandas.DataFrame` with over 3200 rows and following structure:
+
 
 <table>
   <thead>
@@ -37,11 +38,14 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <th>instrument</th>
       <th>region</th>
       <th>at_gettex</th>
-      <th>at_xetra</th>
-      <th>at_london</th>
-      <th>at_euronext</th>
-      <th>at_stuttgart</th>
-      <th>at_six</th>
+      <th>at_XETRA</th>
+      <th>at_London</th>
+      <th>at_Euronext Paris</th>
+      <th>at_Stuttgart</th>
+      <th>at_SIX Swiss Exchange</th>
+      <th>at_Borsa Italiana</th>
+      <th>at_Euronext Amsterdam</th>
+      <th>at_Euronext Brussels</th>
       <th>yesterday</th>
       <th>last_week</th>
       <th>last_month</th>
@@ -50,10 +54,10 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <th>last_year</th>
       <th>last_three_years</th>
       <th>last_five_years</th>
+      <th>2023</th>
+      <th>2022</th>
       <th>2021</th>
       <th>2020</th>
-      <th>2019</th>
-      <th>2018</th>
       <th>last_dividends</th>
       <th>last_year_dividends</th>
       <th>last_year_volatility</th>
@@ -67,100 +71,106 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
   <tbody>
     <tr>
       <th>0</th>
-      <td>CH0496484640</td>
-      <td>A22FMC</td>
-      <td>21XA</td>
-      <td>49648464</td>
-      <td>21Shares Bitcoin Suisse Index ETP</td>
-      <td>21Shares Bitcoin Suisse</td>
-      <td>2019-10-04</td>
-      <td>2.653215</td>
+      <td>GB00BM9JYH62</td>
+      <td>A3GZKD</td>
+      <td>AVMX</td>
+      <td>&lt;NA&gt;</td>
+      <td>Global X Aave ETP</td>
+      <td>Aave</td>
+      <td>2023-03-13</td>
+      <td>0.838232</td>
       <td>Long-only</td>
-      <td>Switzerland</td>
+      <td>Jersey</td>
       <td>USD</td>
       <td>False</td>
       <td>False</td>
       <td>Accumulating</td>
-      <td>2.5</td>
+      <td>0.99</td>
       <td>Physically backed</td>
-      <td>28</td>
+      <td>0</td>
       <td>Cryptocurrencies</td>
       <td>ETN</td>
       <td>NaN</td>
       <td>True</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
       <td>True</td>
-      <td>True</td>
-      <td>-38.90</td>
-      <td>-5.35</td>
-      <td>-28.91</td>
-      <td>-22.74</td>
-      <td>-46.65</td>
-      <td>-19.87</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-4.25</td>
+      <td>3.72</td>
+      <td>16.50</td>
+      <td>65.07</td>
+      <td>46.13</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>129.88</td>
-      <td>252.92</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>72.54</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>-0.27</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>CH0445689208</td>
-      <td>A2TT3D</td>
-      <td>21XH</td>
-      <td>44568920</td>
-      <td>21Shares Crypto Basket Index ETP</td>
-      <td>21Shares Crypto Basket</td>
-      <td>2018-11-21</td>
-      <td>3.521708</td>
+      <td>IE000GGQK173</td>
+      <td>A3D4VW</td>
+      <td>R8T</td>
+      <td>125589092</td>
+      <td>abrdn Global Real Estate Active Thematics UCIT...</td>
+      <td>abrdn Global Real Estate Active Thematics</td>
+      <td>2023-02-22</td>
+      <td>0.890286</td>
       <td>Long-only</td>
-      <td>Switzerland</td>
+      <td>Ireland</td>
       <td>USD</td>
       <td>False</td>
       <td>False</td>
       <td>Accumulating</td>
-      <td>2.5</td>
-      <td>Physically backed</td>
-      <td>111</td>
-      <td>Cryptocurrencies</td>
-      <td>ETN</td>
-      <td>NaN</td>
+      <td>0.40</td>
+      <td>Full replication</td>
+      <td>10</td>
+      <td>Real Estate</td>
+      <td>ETF</td>
+      <td>World</td>
       <td>True</td>
       <td>True</td>
       <td>False</td>
-      <td>True</td>
       <td>False</td>
-      <td>True</td>
-      <td>-50.78</td>
-      <td>-6.49</td>
-      <td>-37.14</td>
-      <td>-32.25</td>
-      <td>-57.58</td>
-      <td>-33.83</td>
-      <td>200.00</td>
-      <td>NaN</td>
-      <td>166.39</td>
-      <td>241.24</td>
-      <td>20.41</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>-0.96</td>
+      <td>0.11</td>
+      <td>2.66</td>
+      <td>8.94</td>
+      <td>5.23</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>77.30</td>
-      <td>78.17</td>
       <td>NaN</td>
-      <td>-0.44</td>
-      <td>0.57</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
@@ -172,16 +182,16 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>iShares AEX UCITS ETF</td>
       <td>AEX®</td>
       <td>2005-11-18</td>
-      <td>16.538147</td>
+      <td>18.164259</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>EUR</td>
       <td>False</td>
       <td>True</td>
       <td>Distributing</td>
-      <td>0.3</td>
+      <td>0.30</td>
       <td>Full replication</td>
-      <td>471</td>
+      <td>571</td>
       <td>Equity</td>
       <td>ETF</td>
       <td>NaN</td>
@@ -191,26 +201,29 @@ you get `pandas.DataFrame` with over 2670 rows and following structure:
       <td>False</td>
       <td>False</td>
       <td>True</td>
-      <td>-11.57</td>
-      <td>2.73</td>
-      <td>1.06</td>
-      <td>-3.27</td>
-      <td>-9.75</td>
-      <td>-0.02</td>
-      <td>34.98</td>
-      <td>47.69</td>
+      <td>False</td>
+      <td>True</td>
+      <td>False</td>
+      <td>-1.56</td>
+      <td>-0.73</td>
+      <td>-1.52</td>
+      <td>5.31</td>
+      <td>3.47</td>
+      <td>7.22</td>
+      <td>28.09</td>
+      <td>72.86</td>
+      <td>16.77</td>
+      <td>-11.78</td>
       <td>29.89</td>
       <td>5.14</td>
-      <td>27.55</td>
-      <td>-8.05</td>
-      <td>1.81</td>
-      <td>1.78</td>
-      <td>18.44</td>
-      <td>20.68</td>
-      <td>17.65</td>
-      <td>0.00</td>
-      <td>0.51</td>
-      <td>0.46</td>
+      <td>2.16</td>
+      <td>2.26</td>
+      <td>11.99</td>
+      <td>16.28</td>
+      <td>18.48</td>
+      <td>0.6</td>
+      <td>0.53</td>
+      <td>0.63</td>
     </tr>
   </tbody>
 </table>
