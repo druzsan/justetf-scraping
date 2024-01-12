@@ -1,5 +1,5 @@
 """
-Helpers for chart requests.
+Helpers for charts requests.
 
 Unnecessary headers are removed.
 
@@ -50,11 +50,11 @@ XML_HEADERS: Dict[str, str] = {
 5: ?0-1.1-&isin=IE00B4L5Y983&_wicket=1&_=1654968616039
 6: ?0-1.1-&isin=IE00B4L5Y983&_wicket=1&_=1654968616040
 7: ?0-1.1-&isin=IE00B4L5Y983&_wicket=1&_=1654968616041
-8: ?0-1.0-chartPanel-chart-content-dates-ptl_max&isin=IE00B4L5Y983&_wicket=1&_=1654972505831
+8: ?0-1.0-chartPanel-charts-content-dates-ptl_max&isin=IE00B4L5Y983&_wicket=1&_=1654972505831
 Wicket-FocusedElementId: id285
-9: ?0-1.0-chartPanel-chart-content-optionsPanel-selectContainer-valueType&isin=IE00B4L5Y983&_wicket=1
+9: ?0-1.0-chartPanel-charts-content-optionsPanel-selectContainer-valueType&isin=IE00B4L5Y983&_wicket=1
 +
-"chartPanel:chart:content:optionsPanel:selectContainer:valueType": "absolute_change"
+"chartPanel:charts:content:optionsPanel:selectContainer:valueType": "absolute_change"
 Content-Type: application/x-www-form-urlencoded; charset=UTF-8
 Content-Length: 89
 Wicket-FocusedElementId: id286
@@ -76,7 +76,7 @@ CURRENCIES: Dict[str, ChartCurrency] = {
 
 class Payload:
     """
-    Payload generator for getting chart data.
+    Payload generator for getting charts data.
     """
 
     _isin: str
@@ -98,61 +98,61 @@ class Payload:
 
     def overview_panel(self) -> Dict[str, str]:
         """
-        Payload for getting overview panel (no chart).
+        Payload for getting overview panel (no charts).
         """
         return {**self.xml(), "0-1.0-overviewPanel": ""}
 
     def returns_panel(self) -> Dict[str, str]:
         """
-        Payload for getting returns panel (no chart).
+        Payload for getting returns panel (no charts).
         """
         return {**self.xml(), "0-1.0-returnsPanel": ""}
 
     def default_chart(self) -> Dict[str, str]:
         """
-        Payload for getting value and volatility chart components;
+        Payload for getting value and volatility charts components;
         default value data.
         """
         return {**self.xml(), "0-1.1-": ""}
 
     def set_chart_period(self, period: ChartPeriod) -> Dict[str, str]:
         """
-        Payload for setting time period and getting updated value chart.
+        Payload for setting time period and getting updated value charts.
         """
-        return {**self.xml(), f"0-1.0-chartPanel-chart-content-dates-ptl_{period}": ""}
+        return {**self.xml(), f"0-1.0-chartPanel-charts-content-dates-ptl_{period}": ""}
 
     def set_chart_value(self, value: ChartValue) -> Dict[str, str]:
         """
-        Payload for setting value type and getting updated value chart.
+        Payload for setting value type and getting updated value charts.
         """
         return {
             **self.xml(),
-            "0-1.0-chartPanel-chart-content-optionsPanel-selectContainer-valueType": "",
-            "chartPanel:chart:content:optionsPanel:selectContainer:valueType": value,
+            "0-1.0-chartPanel-charts-content-optionsPanel-selectContainer-valueType": "",
+            "chartPanel:charts:content:optionsPanel:selectContainer:valueType": value,
         }
 
     def set_chart_currency(self, currency: str) -> Dict[str, str]:
         """
-        Payload for setting currency and getting updated value chart.
+        Payload for setting currency and getting updated value charts.
         """
         code = CURRENCIES.get(currency, currency)
         return {
             **self.xml(),
-            "0-1.0-chartPanel-chart-content-optionsPanel-selectContainer-currencies": "",
-            "chartPanel:chart:content:optionsPanel:selectContainer:currencies": code,
+            "0-1.0-chartPanel-charts-content-optionsPanel-selectContainer-currencies": "",
+            "chartPanel:charts:content:optionsPanel:selectContainer:currencies": code,
         }
 
     def set_chart_dividends(self, with_dividends: bool) -> Dict[str, str]:
         """
-        Payload for enabling/disabling dividends and getting updated value chart.
+        Payload for enabling/disabling dividends and getting updated value charts.
         """
         payload = {
             **self.xml(),
-            "0-1.0-chartPanel-chart-content-optionsPanel-selectContainer-includePaymentContainer-includePayment": "",
+            "0-1.0-chartPanel-charts-content-optionsPanel-selectContainer-includePaymentContainer-includePayment": "",
         }
         if with_dividends:
             payload[
-                "chartPanel:chart:content:optionsPanel:selectContainer:includePaymentContainer:includePayment"
+                "chartPanel:charts:content:optionsPanel:selectContainer:includePaymentContainer:includePayment"
             ] = "on"
         # For no dividends, no payload parameter is required.
         return payload

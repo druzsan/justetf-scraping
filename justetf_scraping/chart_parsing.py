@@ -1,16 +1,16 @@
 """
-Helpers for parsing chart data from AJAX responses.
+Helpers for parsing charts data from AJAX responses.
 
 All *right* XML responses have tag "header-contribution", whose data is XML
 again and it has tag "script", whose data is JavaScript code with one of the
 following contents:
-    `<...>, series: [{<chart object>}, <...>], <...>` (default response)
-    `<...>.addSeries({<chart object>}, <...>); <...>` (custom response)
-    `<...>.get('<isin>').setData([<chart data>], <...>); <...>`
+    `<...>, series: [{<charts object>}, <...>], <...>` (default response)
+    `<...>.addSeries({<charts object>}, <...>); <...>` (custom response)
+    `<...>.get('<isin>').setData([<charts data>], <...>); <...>`
         (custom volatility response, currently not parsed)
 
 Chart object has the following structure:
-    `{id: '<isin>', type: '<type>', name: '<name>', color: '<color>', data: [<chart data>], <...>}`
+    `{id: '<isin>', type: '<type>', name: '<name>', color: '<color>', data: [<charts data>], <...>}`
 
 Chart data has the following structure:
     `[[Date.UTC(<year>,<month>,<day>),<value>],<...>]`
@@ -45,11 +45,15 @@ DIVIDEND_SAMPLE_PATTERN = re.compile(rf"\{{(?=.*?x\s*:\s*{JS_DATE_PATTERN})(?=.*
 ParsingTarget = Literal["charts", "dividends"]
 
 
-def _patch_js_date(year: str, month: str, day: str) -> str:
-    """
-    Patch months from 0..11 to 1..12 and merge date.
-    """
-    return f"{year}-{str(int(month) + 1)}-{day}"
+def _parse_samples(matches: List[Tuple[str, str, str, str]]) -> Optional[pd.Series]:
+    if not matches:
+        return None
+    *ymds, values = zip(*matches)
+    # Patch months from 0..11 to 1..12.
+    dates = [f"{year}-{str(int(month) + 1)}-{day}" for year, month, day in zip(*ymds)]
+    return pd.Series(
+        values, index=pd.to_datetime(dates, format="%Y-%m-%d"), dtype=float
+    )
 
 
 @dataclass
@@ -65,6 +69,10 @@ class Chart:
 
     @classmethod
     def fromstring(cls, text: str) -> "Chart":
+        """
+        Initialize charts object from a raw JavaScript object text. Unknown
+        fields are ignored.
+        """
         keys = [field.name for field in fields(cls)]
         meta_data = dict(META_FIELDS_PATTERN.findall(text))
         meta_data = {key: value for key, value in meta_data.items() if key in keys}
@@ -74,27 +82,16 @@ class Chart:
         _, end, data_text = parse_brackets(text[match.end() - 1 :], "[")
         if end == -1:
             raise ValueError("No data array found in the string.")
-        data = cls.parse_data(data_text)
+        matches = DATA_SAMPLE_PATTERN.findall(data_text)
+        data = _parse_samples(matches)
         return cls(**meta_data, data=data)
-
-    @staticmethod
-    def parse_data(text: str) -> pd.Series:
-        matches = DATA_SAMPLE_PATTERN.findall(text)
-        if not matches:
-            raise ValueError("No data samples found in the string.")
-        *ymds, values = zip(*matches)
-
-        dates = [_patch_js_date(*ymd) for ymd in zip(*ymds)]
-        data = pd.Series(
-            values, index=pd.to_datetime(dates, format="%Y-%m-%d"), dtype=float
-        )
-        return data
 
 
 def parse_brackets(
     text: str, bracket: str, closing_bracket: Optional[str] = None
 ) -> Tuple[int, int, str]:
     """
+    Parse content of brackets or other paired strings.
 
     Returns:
         start: Position of the opening bracket: 0 if bracket is found at the
@@ -159,22 +156,13 @@ def parse_charts(text: str) -> Tuple[List[Chart], int]:
 
 def parse_dividends(text: str) -> Tuple[List[pd.Series], int]:
     _, end, text = parse_brackets(text, "(")
-    if end == -1:
-        return [], 0
-    _, offset, text = parse_brackets(text, "[")
-    if offset == -1:
-        return [], 0
-
-    matches = DIVIDEND_SAMPLE_PATTERN.findall(text)
-    if not matches:
-        return [], 0
-    *ymds, values = zip(*matches)
-
-    dates = [_patch_js_date(*ymd) for ymd in zip(*ymds)]
-    data = pd.Series(
-        values, index=pd.to_datetime(dates, format="%Y-%m-%d"), dtype=float
-    )
-    return [data], offset + 1
+    if end != -1:
+        _, end, text = parse_brackets(text, "[")
+        if end != -1:
+            matches = DIVIDEND_SAMPLE_PATTERN.findall(text)
+            data = _parse_samples(matches)
+            return [] if data is None else [data], end + 1
+    return [], 0
 
 
 @overload
@@ -244,6 +232,10 @@ def parse_xml(text: str, target: ParsingTarget) -> Union[List[Chart], List[pd.Se
 
 
 def filter_charts(charts: List[Chart], **kwargs: str) -> Optional[Chart]:
+    """
+    Find the first charts with the given fields and non-zero data length.
+    If not found , return `None`.
+    """
     for chart in charts:
         if len(chart.data) and all(
             getattr(chart, key, None) == value for key, value in kwargs.items()
