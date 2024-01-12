@@ -23,6 +23,7 @@ Dividends enabling responses also provide the following information in the
 Dividends object has the following structure:
     `{ x: Date.UTC(<year>,<month>,<day>), events: {click: function() {  }}, title: 'D', text: 'Dividend <currency> <value>', id: ''}`
 """
+import logging
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, fields
@@ -39,7 +40,9 @@ SPACE_PATTERN = re.compile(r"\s")
 META_FIELDS_PATTERN = re.compile(r"(\w+)\s*:\s*'([^']*)'")
 DATA_KEY_PATTERN = re.compile(r"data\s*:\s*\[")
 DATA_SAMPLE_PATTERN = re.compile(rf"\[{JS_DATE_PATTERN},{FLOAT_PATTERN}\]")
-DIVIDEND_SAMPLE_PATTERN = re.compile(rf"\{{(?=.*?x\s*:\s*{JS_DATE_PATTERN})(?=.*?text\s*:\s*'Dividend[\w ]* {FLOAT_PATTERN}').*?\}}")
+DIVIDEND_SAMPLE_PATTERN = re.compile(
+    rf"\{{(?=.*?x\s*:\s*{JS_DATE_PATTERN})(?=.*?text\s*:\s*'Dividend[\w ]* {FLOAT_PATTERN}').*?\}}"
+)
 
 
 ParsingTarget = Literal["charts", "dividends"]
@@ -61,6 +64,7 @@ class Chart:
     """
     A Chart object. Has only fields which are always present, ignores the other.
     """
+
     id: str
     type: str
     name: str

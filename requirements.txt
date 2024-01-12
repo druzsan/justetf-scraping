@@ -1,6 +1,6 @@
 # dev dependencies
 black
-nb-black
+#nb-black
 # dependencies
 notebook
 requests
