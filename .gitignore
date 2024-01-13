@@ -1,5 +1,6 @@
 # Project-specific
 .idea/
+.ruff_cache/
 .vscode/
 dev/
 justetf_scraping/justetf.csv
