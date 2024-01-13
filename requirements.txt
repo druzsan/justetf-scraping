@@ -1,8 +1,0 @@
-# dev dependencies
-black
-# dependencies
-notebook
-requests
-pandas
-matplotlib
-seaborn

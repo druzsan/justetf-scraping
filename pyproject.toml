@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "justetf-scraping"
+version = "0.1.0"
+description = "Scraping the justETF [ETF Screener](https://www.justetf.com/en/find-etf.html)"
+authors = ["Alexander Druz <alexandersdruz@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "justetf_scraping"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "*"
+pandas = ">=2.0.0"
+notebook = { version = ">=7.0.0", optional = true }
+seaborn = { version = "*", optional = true }
+
+[tool.poetry.extras]
+exploration = ["notebook", "seaborn"]
+all = ["notebook", "seaborn"]
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+ruff = "*"
+mypy = "*"
+pre-commit = "*"
+
+[tool.mypy]
+ignore_missing_imports = false
+disallow_untyped_defs = true
+explicit_package_bases = true
+mypy_path = "."
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
