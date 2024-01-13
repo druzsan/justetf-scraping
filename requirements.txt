@@ -1,6 +1,9 @@
 # dev dependencies
 black
+<<<<<<< HEAD
 #nb-black
+=======
+>>>>>>> main
 # dependencies
 notebook
 requests
