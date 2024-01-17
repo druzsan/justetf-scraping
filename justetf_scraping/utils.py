@@ -40,7 +40,7 @@ Region = Literal[
 Exchange = Literal[
     "MUND", "XETR", "XLON", "XPAR", "XSTU", "XSWX", "XMIL", "XAMS", "XBRU"
 ]
-Instrument = Optional[Literal["ETC", "ETF", "ETN"]]
+Instrument = Literal["ETC", "ETF", "ETN"]
 
 
 STRATEGIES: Dict[Strategy, str] = {

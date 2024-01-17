@@ -1,5 +1,6 @@
 # justETF Scraping
-Scraping the justETF [ETF Screener](https://www.justetf.com/en/find-etf.html).
+
+Scrape the [justETF](https://www.justetf.com).
 
 The most part of the project is implemented as
 [Notebook](justetf_scraping/justetf-scraping.ipynb),
@@ -11,7 +12,6 @@ After [loading](justetf_scraping/justetf-scraping.ipynb#request),
 [cleanup](justetf_scraping/justetf-scraping.ipynb#cleanup) and
 [enrichment](justetf_scraping/justetf-scraping.ipynb#enrich)
 you get `pandas.DataFrame` with over 3200 rows and following structure:
-
 
 <table>
   <thead>
@@ -231,10 +231,12 @@ you get `pandas.DataFrame` with over 3200 rows and following structure:
 For further usage, see [Notebook](justetf_scraping/justetf-scraping.ipynb).
 
 ## Similar Projects
+
 - https://github.com/AshNL/justETF-overview-scraper
 - https://github.com/SimonMandlik/etf_filter
 
 ## Thanks
+
 This project was inspired by
 [this](https://stackoverflow.com/questions/64813023/scraping-dynamic-datatable-of-many-pages-but-same-url)
 Stack Overflow question.

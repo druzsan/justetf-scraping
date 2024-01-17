@@ -10,7 +10,7 @@ help: ## Print this help message
 
 .PHONY: init
 init: ## Locally install all dev dependencies
-	poetry install --extras all
+	poetry install --all-extras
 
 .PHONY: clean
 clean: ## Clean project
