@@ -10,14 +10,7 @@ import requests
 
 
 OVERVIEW_URL = "https://www.justetf.com/servlet/etfs-table"
-BASE_PARAMS = {
-    "draw": 1,
-    "start": 0,
-    "length": -1,
-    # "lang": "en",
-    # "country": "DE",
-    # "universeType": "private",
-}
+BASE_PARAMS = {"draw": 1, "start": 0, "length": -1}
 
 
 Language = Literal["en", "de", "fr", "it", "es"]
@@ -112,6 +105,8 @@ COLUMN_NAMES = {
     "ter": "ter",
     "replicationMethod": "replication",
     "fundSize": "size",
+    "sustainable": "is_sustainable",
+    "numberOfHoldings": "number_of_holdings",
     # Value return
     "ytdReturnCUR": "yesterday",
     "weekReturnCUR": "last_week",
@@ -136,6 +131,11 @@ COLUMN_NAMES = {
     "yearReturnPerRiskCUR": "last_year_return_per_risk",
     "threeYearReturnPerRiskCUR": "last_three_years_return_per_risk",
     "fiveYearReturnPerRiskCUR": "last_five_years_return_per_risk",
+    # Drawdown
+    "maxDrawdownCUR": "max_drawdown",
+    "yearMaxDrawdownCUR": "last_year_max_drawdown",
+    "threeYearMaxDrawdownCUR": "last_three_years_max_drawdown",
+    "fiveYearMaxDrawdownCUR": "last_five_years_max_drawdown",
 }
 IGNORED_COLUMNS = [
     "groupParam",  # Same as "groupValue" but prepared for a request
@@ -143,7 +143,8 @@ IGNORED_COLUMNS = [
     "clazz",  # The most values are empty strings, some are "highl_c"
     "savingsPlanReady",  # "Savings plan ready from x.xx EUR" text
 ]
-INT64_COLUMNS = ["valor", "size"]
+BOOL_COLUMNS = ["securities_lending", "is_sustainable"]
+INT64_COLUMNS = ["valor", "size", "number_of_holdings"]
 CATEGORY_COLUMNS = [
     # "strategy",
     "domicile_country",
@@ -168,6 +169,10 @@ FLOAT_COLUMNS = [
     "last_year_return_per_risk",
     "last_three_years_return_per_risk",
     "last_five_years_return_per_risk",
+    "max_drawdown",
+    "last_year_max_drawdown",
+    "last_three_years_max_drawdown",
+    "last_five_years_max_drawdown",
 ] + LAST_FOUR_YEARS
 
 
@@ -298,7 +303,7 @@ def get_raw_overview(
     return rows
 
 
-def get_overview(
+def load_overview(
     strategy: Optional[Strategy] = None,
     exchange: Optional[Literal[Exchange, "any"]] = "any",
     asset: Optional[Asset] = None,
@@ -385,23 +390,21 @@ def get_overview(
             .replace("-", pd.NA)
         )
     # Convert columns.
-    for column in INT64_COLUMNS:
+    for column in df.columns.intersection(BOOL_COLUMNS):
+        df[column] = df[column].replace({"Yes": True, "No": False}).astype("bool")
+    for column in df.columns.intersection(INT64_COLUMNS):
         if column in df:
             df[column] = df[column].astype("Int64")
-    for column in CATEGORY_COLUMNS:
+    for column in df.columns.intersection(CATEGORY_COLUMNS):
         if column in df:
             df[column] = df[column].astype("category")
-    for column in FLOAT_COLUMNS:
+    for column in df.columns.intersection(FLOAT_COLUMNS):
         if column in df:
             df[column] = (
                 df[column].str.removesuffix("%").fillna("nan").astype("float64")
             )
     if "inception_date" in df:
         df["inception_date"] = pd.to_datetime(df["inception_date"], format="%d.%m.%y")
-    if "securities_lending":
-        df["securities_lending"] = (
-            df["securities_lending"].replace({"Yes": True, "No": False}).astype("bool")
-        )
     # Enrich existing columns.
     if "inception_date" in df:
         columns = df.columns.tolist()
@@ -440,4 +443,4 @@ def get_overview(
                             df.at[index_, enrichment_name] = value
                         elif value not in old_value:
                             df.at[index_, enrichment_name] = f"{old_value}, {value}"
-    return df
+    return df.set_index("isin")
