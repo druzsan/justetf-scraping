@@ -1,8 +1,9 @@
 # Project-specific
 .idea/
+.ruff_cache/
 .vscode/
 dev/
-justetf_scraping/justetf.csv
+notebooks/justetf.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

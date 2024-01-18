@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "justetf-scraping"
 version = "0.1.0"
-description = "Scraping the justETF [ETF Screener](https://www.justetf.com/en/find-etf.html)"
+description = "Scrape the [justETF](https://www.justetf.com)"
 authors = ["Alexander Druz <alexandersdruz@gmail.com>"]
 license = "MIT"
 readme = "README.md"
@@ -23,6 +23,8 @@ black = "*"
 ruff = "*"
 mypy = "*"
 pre-commit = "*"
+types-requests = "*"
+pandas-stubs = "*"
 
 [tool.mypy]
 ignore_missing_imports = false
