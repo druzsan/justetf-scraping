@@ -2,11 +2,19 @@
 
 Scrape the [justETF](https://www.justetf.com).
 
+## Installation
+
+To use justETF scraping package in your project, install the actual version from GitHub:
+
+```shell
+pip install git+https://github.com/druzsan/justetf-scraping.git
+```
+
 ## Usage
 
 ### Scrape the [justETF Screener](https://www.justetf.com/en/find-etf.html)
 
-Load overviews for over 3200 ETFs (requires a request for all ETF type: long-only, active, short & leveraged):
+Load overviews for all available (over 3200 at the moment) ETFs (requires a request for all ETF type: long-only, active, short & leveraged):
 
 ```python
 import justetf_scraping
@@ -290,7 +298,9 @@ Load MSCI World ETFs:
 df = justetf_scraping.load_overview(strategy="epg-longOnly", index="MSCI World")
 ```
 
-### Scrape ETF chart data from justETF ([e.g.](https://www.justetf.com/en/etf-profile.html?isin=IE00B0M62Q58))
+### Scrape ETF Chart Data from justETF ([e.g.](https://www.justetf.com/en/etf-profile.html?isin=IE00B0M62Q58#chart))
+
+Load the whole history of a chosen ETF by its ISIN:
 
 ```python
 df = justetf_scraping.load_chart("IE00B0M62Q58")
@@ -548,6 +558,32 @@ df
 <p>6635 rows × 2 columns</p>
 
 For further exploration examples, see [Jupyter Notebooks](notebooks/)
+
+## Development Setup
+
+To setup locally cloned project, first install [Poetry](https://python-poetry.org/):
+
+```shell
+pip install poetry
+```
+
+In the local project folder, install all dependencies and extras:
+
+```shell
+poetry install --all-extras
+```
+
+Activate local Poetry environment:
+
+```shell
+poetry shell
+```
+
+Setup [pre-commit hooks](https://pre-commit.com/):
+
+```shell
+pre-commit install
+```
 
 ## Similar Projects
 
