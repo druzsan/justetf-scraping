@@ -1,13 +1,15 @@
 """
 Parse ETF overview data from justETF (https://www.justetf.com/en/find-etf.html).
 """
+
 import itertools
-from typing import Any, Dict, List, Literal, Optional, cast
 import warnings
+from typing import Any, Dict, List, Literal, Optional, cast
 
 import pandas as pd
+import pycountry
+import pycountry.db
 import requests
-
 
 OVERVIEW_URL = "https://www.justetf.com/servlet/etfs-table"
 BASE_PARAMS = {"draw": 1, "start": 0, "length": -1}
@@ -181,6 +183,7 @@ def get_etf_params(
     exchange: Optional[Literal[Exchange, "any"]] = "any",
     asset: Optional[Asset] = None,
     region: Optional[Region] = None,
+    country: Optional[str] = None,
     instrument: Optional[Instrument] = None,
     provider: Optional[str] = None,
     index_provider: Optional[str] = None,
@@ -201,6 +204,9 @@ def get_etf_params(
             If `None` (default), all assets are requested.
         region: Optional region query, see `REGIONS`. Regions are currently
             disjunctive. If `None` (default), all regions are requested.
+        country: Optional country query, represents the country targeted by the
+            respective ETFs. Can be a country name or an alpha-2 code. If `None`
+            (default), all target countries are selected.
         instrument: optional instrument query, see `INSTRUMENTS`. Instruments
             are disjunctive, If `None` (default), all instruments are requested.
         provider: Optional asset provider query.
@@ -216,6 +222,22 @@ def get_etf_params(
         etf_params += f"&assetClass={asset}"
     if region is not None:
         etf_params += f"&region={region}"
+    if country is not None:
+        if len(country) == 2 and country == country.upper():
+            py_country: pycountry.db.Country = pycountry.countries.get(alpha_2=country)
+            if py_country is None:
+                raise ValueError(f"Country alpha-2 code '{country}' not found.")
+        if len(country) != 2 or country != country.upper():
+            try:
+                matches = pycountry.countries.search_fuzzy(country)
+            except LookupError as e:
+                raise ValueError(f"Country '{country}' not recognized.") from e
+            try:
+                py_country = matches[0]  # type: ignore
+            except IndexError as e:
+                raise ValueError(f"Country '{country}' not recognized.") from e
+            country = py_country.alpha_2
+        etf_params += f"&country={country}"
     if instrument is not None:
         etf_params += f"&instrumentType={instrument}"
     if provider is not None:
@@ -234,13 +256,14 @@ def get_raw_overview(
     exchange: Optional[Literal[Exchange, "any"]] = "any",
     asset: Optional[Asset] = None,
     region: Optional[Region] = None,
+    country: Optional[str] = None,
     instrument: Optional[Instrument] = None,
     provider: Optional[str] = None,
     index_provider: Optional[str] = None,
     index: Optional[str] = None,
     isin: Optional[str] = None,
     language: Language = "en",
-    country: Country = "DE",
+    local_country: Country = "DE",
     universe: Universe = "private",
 ) -> List[Dict[str, Any]]:
     """
@@ -254,6 +277,9 @@ def get_raw_overview(
             If `None` (default), all assets are requested.
         region: Optional region query, see `REGIONS`. Regions are currently
             disjunctive. If `None` (default), all regions are requested.
+        country: Optional country query, represents the country targeted by the
+            respective ETFs. Can be a country name or an alpha-2 code. If `None`
+            (default), all target countries are selected.
         instrument: optional instrument query, see `INSTRUMENTS`. Instruments
             are disjunctive, If `None` (default), all instruments are requested.
         provider: Optional asset provider query.
@@ -262,7 +288,7 @@ def get_raw_overview(
             response.
         isin: Optional ISIN query.
         language: Optional response language, see `Language`.
-        country: Optional response country, see `Country`.
+        local_country: Optional response country, see `Country`.
         universe: Optional investor type, see `Universe`.
     """
     # If `strategy` is `None`, make requests for all strategies.
@@ -274,13 +300,14 @@ def get_raw_overview(
             {
                 **BASE_PARAMS,
                 "lang": language,
-                "country": country,
+                "country": local_country,
                 "universeType": universe,
                 "etfsParams": get_etf_params(
                     strategy_,
                     exchange,
                     asset,
                     region,
+                    country,
                     instrument,
                     provider,
                     index_provider,
@@ -308,13 +335,14 @@ def load_overview(
     exchange: Optional[Literal[Exchange, "any"]] = "any",
     asset: Optional[Asset] = None,
     region: Optional[Region] = None,
+    country: Optional[str] = None,
     instrument: Optional[Instrument] = None,
     provider: Optional[str] = None,
     index_provider: Optional[str] = None,
     index: Optional[str] = None,
     isin: Optional[str] = None,
     language: Language = "en",
-    country: Country = "DE",
+    local_country: Country = "DE",
     universe: Universe = "private",
     enrich: bool = False,
 ) -> pd.DataFrame:
@@ -329,6 +357,9 @@ def load_overview(
             If `None` (default), all assets are requested.
         region: Optional region query, see `REGIONS`. Regions are currently
             disjunctive. If `None` (default), all regions are requested.
+        country: Optional country query, represents the country targeted by the
+            respective ETFs. Can be a country name or an alpha-2 code. If `None`
+            (default), all target countries are selected.
         instrument: optional instrument query, see `INSTRUMENTS`. Instruments
             are disjunctive, If `None` (default), all instruments are requested.
         provider: Optional asset provider query.
@@ -337,7 +368,7 @@ def load_overview(
             response.
         isin: Optional ISIN query.
         language: Optional response language, see `Language`.
-        country: Optional response country, see `Country`.
+        local_country: Optional response country, see `Country`.
         universe: Optional investor type, see `Universe`.
     """
     rows = get_raw_overview(
@@ -345,13 +376,14 @@ def load_overview(
         exchange,
         asset,
         region,
+        country,
         instrument,
         provider,
         index_provider,
         index,
         isin,
         language,
-        country,
+        local_country,
         universe,
     )
     # Rebuild rows to columns
@@ -433,7 +465,7 @@ def load_overview(
                     "strategy": strategy,
                     enrichment_name: enrichment,
                     "language": language,
-                    "country": country,
+                    "country": local_country,
                     "universe": universe,
                 }
                 for row in get_raw_overview(**kwargs):
