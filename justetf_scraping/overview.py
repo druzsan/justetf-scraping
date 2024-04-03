@@ -146,7 +146,7 @@ IGNORED_COLUMNS = [
     "savingsPlanReady",  # "Savings plan ready from x.xx EUR" text
 ]
 BOOL_COLUMNS = ["securities_lending", "is_sustainable"]
-INT64_COLUMNS = ["valor", "size", "number_of_holdings"]
+INT64_COLUMNS = ["size", "number_of_holdings"]
 CATEGORY_COLUMNS = [
     # "strategy",
     "domicile_country",
