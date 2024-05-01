@@ -12,8 +12,10 @@ import pycountry
 import pycountry.db
 import requests
 
+from justetf_scraping.types import Currency
+
 BASE_URL = "https://www.justetf.com/en/search.html"
-BASE_DATA = {"draw": 1, "start": 0, "length": -1, "defaultCurrency": "EUR"}
+BASE_DATA = {"draw": 1, "start": 0, "length": -1}
 PATTERN = re.compile(
     r"(\d)-1.0-container-tabsContentContainer-tabsContentRepeater-1-container-content-etfsTablePanel&search=ETFS&_wicket=1"
 )
@@ -101,7 +103,7 @@ COLUMN_NAMES = {
     "valorNumber": "valor",
     # Basic info
     "name": "name",
-    "groupValue": "index",
+    # "groupValue": "index",
     "inceptionDate": "inception_date",
     "strategy": "strategy",  # Custom field added during request
     "domicileCountry": "domicile_country",
@@ -269,6 +271,7 @@ def get_raw_overview(
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
+    currency: Currency = "EUR",
 ) -> List[Dict[str, Any]]:
     """
     Args
@@ -294,6 +297,7 @@ def get_raw_overview(
         language: Optional response language, see `Language`.
         local_country: Optional response country, see `Country`.
         universe: Optional investor type, see `Universe`.
+        currency: Currency to get data in, see `Currency`.
     """
     # If `strategy` is `None`, make requests for all strategies.
     strategies = list(STRATEGIES) if strategy is None else [strategy]
@@ -313,6 +317,7 @@ def get_raw_overview(
                     "lang": language,
                     "country": local_country,
                     "universeType": universe,
+                    "defaultCurrency": currency,
                     "etfsParams": get_etf_params(
                         strategy_,
                         exchange,
@@ -329,21 +334,6 @@ def get_raw_overview(
             )
             assert response.status_code == requests.codes.ok
             strategy_rows = response.json()["data"]
-            print(
-                get_etf_params(
-                    strategy_,
-                    exchange,
-                    asset_class,
-                    region,
-                    country,
-                    instrument,
-                    provider,
-                    index_provider,
-                    index,
-                    isin,
-                ),
-                len(strategy_rows),
-            )
             for row in strategy_rows:
                 for old_row in rows:
                     if row["isin"] == old_row["isin"]:
@@ -370,6 +360,7 @@ def load_overview(
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
+    currency: Currency = "EUR",
     enrich: bool = False,
 ) -> pd.DataFrame:
     """
@@ -397,6 +388,8 @@ def load_overview(
         language: Optional response language, see `Language`.
         local_country: Optional response country, see `Country`.
         universe: Optional investor type, see `Universe`.
+        currency: Currency to get data in, see `Currency`.
+        enrich: Whether to enrich data with extra information.
     """
     rows = get_raw_overview(
         strategy,
@@ -412,6 +405,7 @@ def load_overview(
         language,
         local_country,
         universe,
+        currency,
     )
     # Rebuild rows to columns
     data: Dict[str, list] = {key: [] for key in itertools.chain.from_iterable(rows)}

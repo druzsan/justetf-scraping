@@ -2,11 +2,13 @@
 Scrape ETF chart data from justETF
 (e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983).
 """
+
 from typing import Dict, Literal
 
 import pandas as pd
 import requests
 
+from justetf_scraping.types import Currency
 
 BASE_URL = "https://www.justetf.com/api/etfs/{isin}/performance-chart"
 BASE_PARAMS = {
@@ -16,9 +18,6 @@ BASE_PARAMS = {
     "includeDividends": "false",
     "features": "DIVIDENDS",
 }
-
-
-Currency = Literal["EUR", "USD", "CHF", "GBP"]
 
 
 def parse_series(raw_series: Dict, value_name: str = "value") -> pd.DataFrame:
@@ -43,7 +42,7 @@ def load_chart(isin: str, currency: Currency = "EUR") -> pd.DataFrame:
 
     Args:
         isin: ISIN of an ETF.
-        currency: Currency to get data in.
+        currency: Currency to get data in, see `Currency`.
 
     Returns:
         Pandas DataFrame with dates as index and following columns:
