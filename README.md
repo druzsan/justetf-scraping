@@ -10,6 +10,12 @@ To use justETF scraping package in your project, install the actual version from
 pip install git+https://github.com/druzsan/justetf-scraping.git
 ```
 
+If you're going to play [notebooks](./notebooks) through, use the following installation:
+
+```shell
+pip install justetf-scraping[all]@git+https://github.com/druzsan/justetf-scraping.git
+```
+
 ## 🚀 Usage
 
 ### 📋 Scrape the [justETF Screener](https://www.justetf.com/en/find-etf.html)
