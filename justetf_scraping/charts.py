@@ -2,11 +2,13 @@
 Scrape ETF chart data from justETF
 (e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983).
 """
+
 from typing import Dict, Literal
 
 import pandas as pd
 import requests
 
+from justetf_scraping.types import Currency
 
 BASE_URL = "https://www.justetf.com/api/etfs/{isin}/performance-chart"
 BASE_PARAMS = {
@@ -16,9 +18,6 @@ BASE_PARAMS = {
     "includeDividends": "false",
     "features": "DIVIDENDS",
 }
-
-
-Currency = Literal["EUR", "USD", "CHF", "GBP"]
 
 
 def parse_series(raw_series: Dict, value_name: str = "value") -> pd.DataFrame:
@@ -43,7 +42,7 @@ def load_chart(isin: str, currency: Currency = "EUR") -> pd.DataFrame:
 
     Args:
         isin: ISIN of an ETF.
-        currency: Currency to get data in.
+        currency: Currency to get data in, see `Currency` for available options.
 
     Returns:
         Pandas DataFrame with dates as index and following columns:
@@ -117,8 +116,8 @@ def compare_charts(
         charts_df = charts_df[charts_df.index >= min_common_date]
     elif dates != "longest":
         raise ValueError(
-            f"`dates` argument must be 'shortest' or 'longest', but value "
-            f"'{dates}' received."
+            f"`dates` argument must be one of 'shortest' or 'longest', but "
+            f"value '{dates}' received."
         )
 
     if output_value == "absolute":
@@ -128,6 +127,6 @@ def compare_charts(
     if output_value == "percentage":
         return 100 * (charts_df.div(charts_df.loc[min_common_date], axis="columns") - 1)
     raise ValueError(
-        f"`output_value` argument must be 'absolute', 'relative' or "
-        f"'percentage', but value '{dates}' received."
+        f"`output_value` argument must be one of 'absolute', 'relative' or "
+        f"'percentage', but value '{output_value}' received."
     )

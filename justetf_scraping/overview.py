@@ -3,6 +3,7 @@ Parse ETF overview data from justETF (https://www.justetf.com/en/find-etf.html).
 """
 
 import itertools
+import re
 import warnings
 from typing import Any, Dict, List, Literal, Optional, cast
 
@@ -11,79 +12,28 @@ import pycountry
 import pycountry.db
 import requests
 
-OVERVIEW_URL = "https://www.justetf.com/servlet/etfs-table"
-BASE_PARAMS = {"draw": 1, "start": 0, "length": -1}
+from justetf_scraping.types import (
+    ASSET_CLASSES,
+    EXCHANGES,
+    INSTRUMENTS,
+    REGIONS,
+    STRATEGIES,
+    AssetClass,
+    Country,
+    Currency,
+    Exchange,
+    Instrument,
+    Language,
+    Region,
+    Strategy,
+    Universe,
+)
 
-
-Language = Literal["en", "de", "fr", "it", "es"]
-Country = Literal["DE", "AT", "CH", "GB", "IT", "FR", "ES", "NL", "BE"]
-Universe = Literal["private", "institutional"]
-Strategy = Literal["epg-longOnly", "epg-activeEtfs", "epg-shortAndLeveraged"]
-Asset = Literal[
-    "class-equity",
-    "class-bonds",
-    "class-preciousMetals",
-    "class-commodities",
-    "class-currency",
-    "class-realEstate",
-    "class-moneyMarket",
-]
-Region = Literal[
-    "Africa",
-    "Asia%2BPacific",
-    "Eastern%2BEurope",
-    "Emerging%2BMarkets",
-    "Europe",
-    "Latin%2BAmerica",
-    "North%2BAmerica",
-    "World",
-]
-Exchange = Literal[
-    "MUND", "XETR", "XLON", "XPAR", "XSTU", "XSWX", "XMIL", "XAMS", "XBRU"
-]
-Instrument = Literal["ETC", "ETF", "ETN"]
-
-
-STRATEGIES: Dict[Strategy, str] = {
-    "epg-longOnly": "Long-only",
-    "epg-activeEtfs": "Active",
-    "epg-shortAndLeveraged": "Short & Leveraged",
-}
-ASSETS: Dict[Asset, str] = {
-    "class-equity": "Equity",
-    "class-bonds": "Bonds",
-    "class-preciousMetals": "Precious Metals",
-    "class-commodities": "Commodities",
-    "class-currency": "Cryptocurrencies",
-    "class-realEstate": "Real Estate",
-    "class-moneyMarket": "Money Market",
-}
-REGIONS: Dict[Region, str] = {
-    "Africa": "Africa",
-    "Asia%2BPacific": "Asia & Pacific",
-    "Eastern%2BEurope": "Eastern Europe",
-    "Emerging%2BMarkets": "Emerging Markets",
-    "Europe": "Europe",
-    "Latin%2BAmerica": "Latin America",
-    "North%2BAmerica": "North America",
-    "World": "World",
-}
-EXCHANGES: Dict[Exchange, str] = {
-    "MUND": "gettex",
-    "XETR": "XETRA",
-    "XLON": "London",
-    "XPAR": "Euronext Paris",
-    "XSTU": "Stuttgart",
-    "XSWX": "SIX Swiss Exchange",
-    "XMIL": "Borsa Italiana",
-    "XAMS": "Euronext Amsterdam",
-    "XBRU": "Euronext Brussels",
-}
-INSTRUMENTS: Dict[Instrument, str] = {
-    "ETC": "ETC",
-    "ETF": "ETF",
-    "ETN": "ETN",
-}
+BASE_URL = "https://www.justetf.com/en/search.html"
+BASE_DATA = {"draw": 1, "start": 0, "length": -1}
+PATTERN = re.compile(
+    r"(\d)-1.0-container-tabsContentContainer-tabsContentRepeater-1-container-content-etfsTablePanel&search=ETFS&_wicket=1"
+)
 
 
 LAST_FOUR_YEARS = [
@@ -97,7 +47,7 @@ COLUMN_NAMES = {
     "valorNumber": "valor",
     # Basic info
     "name": "name",
-    "groupValue": "index",
+    # "groupValue": "index",
     "inceptionDate": "inception_date",
     "strategy": "strategy",  # Custom field added during request
     "domicileCountry": "domicile_country",
@@ -148,7 +98,6 @@ IGNORED_COLUMNS = [
 BOOL_COLUMNS = ["securities_lending", "is_sustainable"]
 INT64_COLUMNS = ["size", "number_of_holdings"]
 CATEGORY_COLUMNS = [
-    # "strategy",
     "domicile_country",
     "dividends",
     "replication",
@@ -181,7 +130,7 @@ FLOAT_COLUMNS = [
 def get_etf_params(
     strategy: Strategy = "epg-longOnly",
     exchange: Optional[Literal[Exchange, "any"]] = "any",
-    asset: Optional[Asset] = None,
+    asset_class: Optional[AssetClass] = None,
     region: Optional[Region] = None,
     country: Optional[str] = None,
     instrument: Optional[Instrument] = None,
@@ -200,8 +149,8 @@ def get_etf_params(
         exchange: Optional exchange query, see `EXCHANGES`. If "any" (default),
             all exchanges are requested. If `None`, it seems that country specific
             exchanges are requested (gettex, XETRA and Stuttgart exchanges for DE).
-        asset: Optional asset query, see `ASSETS`. Assets are disjunctive.
-            If `None` (default), all assets are requested.
+        asset_class: Optional asset class query, see `ASSETS`. Assets are
+            disjunctive. If `None` (default), all assets are requested.
         region: Optional region query, see `REGIONS`. Regions are currently
             disjunctive. If `None` (default), all regions are requested.
         country: Optional country query, represents the country targeted by the
@@ -215,11 +164,11 @@ def get_etf_params(
             response.
         isin: Optional ISIN query.
     """
-    etf_params = f"groupField=index&productGroup={strategy}"
+    etf_params = f"search=ETF&productGroup={strategy}"
     if exchange is not None:
         etf_params += f"&ls={exchange}"
-    if asset is not None:
-        etf_params += f"&assetClass={asset}"
+    if asset_class is not None:
+        etf_params += f"&assetClass={asset_class}"
     if region is not None:
         etf_params += f"&region={region}"
     if country is not None:
@@ -254,7 +203,7 @@ def get_etf_params(
 def get_raw_overview(
     strategy: Optional[Strategy] = None,
     exchange: Optional[Literal[Exchange, "any"]] = "any",
-    asset: Optional[Asset] = None,
+    asset_class: Optional[AssetClass] = None,
     region: Optional[Region] = None,
     country: Optional[str] = None,
     instrument: Optional[Instrument] = None,
@@ -265,6 +214,7 @@ def get_raw_overview(
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
+    currency: Currency = "EUR",
 ) -> List[Dict[str, Any]]:
     """
     Args
@@ -273,8 +223,8 @@ def get_raw_overview(
         exchange: Optional exchange query, see `EXCHANGES`. If "any" (default),
             all exchanges are requested. If `None`, it seems that country specific
             exchanges are requested (gettex, XETRA and Stuttgart exchanges for DE).
-        asset: Optional asset query, see `ASSETS`. Assets are disjunctive.
-            If `None` (default), all assets are requested.
+        asset_class: Optional asset class query, see `ASSETS`. Assets are
+            disjunctive. If `None` (default), all assets are requested.
         region: Optional region query, see `REGIONS`. Regions are currently
             disjunctive. If `None` (default), all regions are requested.
         country: Optional country query, represents the country targeted by the
@@ -290,50 +240,59 @@ def get_raw_overview(
         language: Optional response language, see `Language`.
         local_country: Optional response country, see `Country`.
         universe: Optional investor type, see `Universe`.
+        currency: Currency to get data in, see `Currency`.
     """
     # If `strategy` is `None`, make requests for all strategies.
     strategies = list(STRATEGIES) if strategy is None else [strategy]
     rows: List[Dict[str, Any]] = []
-    for strategy_ in strategies:
-        response = requests.post(
-            OVERVIEW_URL,
-            {
-                **BASE_PARAMS,
-                "lang": language,
-                "country": local_country,
-                "universeType": universe,
-                "etfsParams": get_etf_params(
-                    strategy_,
-                    exchange,
-                    asset,
-                    region,
-                    country,
-                    instrument,
-                    provider,
-                    index_provider,
-                    index,
-                    isin,
-                ),
-            },
-        )
-        assert response.status_code == requests.codes.ok
-        strategy_rows = response.json()["data"]
-        for row in strategy_rows:
-            for old_row in rows:
-                if row["isin"] == old_row["isin"]:
-                    old_value = old_row["strategy"]
-                    old_row["strategy"] = f"{old_value}, {STRATEGIES[strategy_]}"
-                    break
-            else:
-                row["strategy"] = STRATEGIES[strategy_]
-                rows.append(row)
+    with requests.Session() as session:
+        html_response = session.get(f"{BASE_URL}?search=ETFS")
+        if match := PATTERN.search(html_response.text):
+            counter = int(match.group(1))
+        else:
+            warnings.warn("Cannot parse dynamic counter from HTML page, assuming 0.")
+            counter = 0
+        for strategy_ in strategies:
+            response = session.post(
+                f"{BASE_URL}?{counter}-1.0-container-tabsContentContainer-tabsContentRepeater-1-container-content-etfsTablePanel=&search=ETFS&_wicket=1",
+                {
+                    **BASE_DATA,
+                    "lang": language,
+                    "country": local_country,
+                    "universeType": universe,
+                    "defaultCurrency": currency,
+                    "etfsParams": get_etf_params(
+                        strategy_,
+                        exchange,
+                        asset_class,
+                        region,
+                        country,
+                        instrument,
+                        provider,
+                        index_provider,
+                        index,
+                        isin,
+                    ),
+                },
+            )
+            assert response.status_code == requests.codes.ok
+            strategy_rows = response.json()["data"]
+            for row in strategy_rows:
+                for old_row in rows:
+                    if row["isin"] == old_row["isin"]:
+                        old_value = old_row["strategy"]
+                        old_row["strategy"] = f"{old_value}, {STRATEGIES[strategy_]}"
+                        break
+                else:
+                    row["strategy"] = STRATEGIES[strategy_]
+                    rows.append(row)
     return rows
 
 
 def load_overview(
     strategy: Optional[Strategy] = None,
     exchange: Optional[Literal[Exchange, "any"]] = "any",
-    asset: Optional[Asset] = None,
+    asset_class: Optional[AssetClass] = None,
     region: Optional[Region] = None,
     country: Optional[str] = None,
     instrument: Optional[Instrument] = None,
@@ -344,6 +303,7 @@ def load_overview(
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
+    currency: Currency = "EUR",
     enrich: bool = False,
 ) -> pd.DataFrame:
     """
@@ -351,10 +311,11 @@ def load_overview(
         strategy: Optional strategy query, see `STRATEGIES`. Strategies are
             disjunctive. If `None` (default), merge requests for all strategies.
         exchange: Optional exchange query, see `EXCHANGES`. If "any" (default),
-            all exchanges are requested. If `None`, it seems that country specific
-            exchanges are requested (gettex, XETRA and Stuttgart exchanges for DE).
-        asset: Optional asset query, see `ASSETS`. Assets are disjunctive.
-            If `None` (default), all assets are requested.
+            all exchanges are requested. If `None`, it seems that country
+            specific exchanges are requested (e.g. gettex, XETRA and Stuttgart
+            exchanges for DE).
+        asset_class: Optional asset class query, see `ASSETS`. Assets are
+            disjunctive. If `None` (default), all assets are requested.
         region: Optional region query, see `REGIONS`. Regions are currently
             disjunctive. If `None` (default), all regions are requested.
         country: Optional country query, represents the country targeted by the
@@ -367,14 +328,23 @@ def load_overview(
         index: Optional index query. Can be spotted in `qroupIndex` field in any
             response.
         isin: Optional ISIN query.
-        language: Optional response language, see `Language`.
-        local_country: Optional response country, see `Country`.
-        universe: Optional investor type, see `Universe`.
+        language: Optional language for the response data, see `Language` for
+            available options.
+        local_country: Optional response country, see `Country` for available
+            options.
+        universe: Optional investor type, see `Universe` for available options.
+        currency: Currency to get data in, see `Currency` for available options.
+        enrich: Whether to enrich data with extra information. Currently, adds
+            the following fields:
+                `asset_class`: equity, bonds etc.
+                `instrument`: ETC, ETF or ETN
+                `region`: target region
+                `exchange`: all exchanges the asset is available at.
     """
     rows = get_raw_overview(
         strategy,
         exchange,
-        asset,
+        asset_class,
         region,
         country,
         instrument,
@@ -385,6 +355,7 @@ def load_overview(
         language,
         local_country,
         universe,
+        currency,
     )
     # Rebuild rows to columns
     data: Dict[str, list] = {key: [] for key in itertools.chain.from_iterable(rows)}
@@ -454,7 +425,7 @@ def load_overview(
     # Make requests for further enrichment.
     if enrich:
         for enrichment_name, enrichments in {
-            "asset": ASSETS,
+            "asset_class": ASSET_CLASSES,
             "instrument": INSTRUMENTS,
             "region": REGIONS,
             "exchange": EXCHANGES,
@@ -465,7 +436,6 @@ def load_overview(
                     "strategy": strategy,
                     enrichment_name: enrichment,
                     "language": language,
-                    "country": local_country,
                     "universe": universe,
                 }
                 for row in get_raw_overview(**kwargs):
