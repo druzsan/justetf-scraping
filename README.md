@@ -20,7 +20,7 @@ pip install justetf-scraping[all]@git+https://github.com/druzsan/justetf-scrapin
 
 ### 📋 Scrape the [justETF Screener](https://www.justetf.com/en/find-etf.html)
 
-Load overviews for all available (over 3200 at the moment) ETFs (requires a request for all ETF type: long-only, active, short & leveraged):
+Load overviews for all available (over 3300 at the moment) ETFs (requires a request for all ETF type: long-only, active, short & leveraged):
 
 ```python
 import justetf_scraping
