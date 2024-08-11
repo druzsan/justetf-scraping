@@ -275,7 +275,14 @@ def get_raw_overview(
                     ),
                 },
             )
-            assert response.status_code == requests.codes.ok
+            if response.status_code != requests.codes.ok:
+                filepath = "overview-error-page.html"
+                with open(filepath, "w") as file:
+                    file.write(response.text)
+                raise RuntimeError(
+                    f"Got status {response.status_code} when requesting chart. "
+                    f"Error page saved to '{filepath}'"
+                )
             strategy_rows = response.json()["data"]
             for row in strategy_rows:
                 for old_row in rows:

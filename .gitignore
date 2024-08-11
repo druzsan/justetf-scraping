@@ -3,7 +3,8 @@
 .ruff_cache/
 .vscode/
 dev/
-notebooks/justetf.csv
+*.csv
+*.html
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -71,7 +71,14 @@ def load_chart(isin: str, currency: Currency = "EUR") -> pd.DataFrame:
     """
     url = BASE_URL.format(isin=isin)
     response = requests.get(url, params={**BASE_PARAMS, "currency": currency})
-    assert response.status_code == requests.codes.ok
+    if response.status_code != requests.codes.ok:
+        filepath = "chart-error-page.html"
+        with open(filepath, "w") as file:
+            file.write(response.text)
+        raise RuntimeError(
+            f"Got status {response.status_code} when requesting chart. "
+            f"Error page saved to '{filepath}'"
+        )
     data = response.json()
 
     df = parse_series(data["series"], "quote")

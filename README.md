@@ -37,7 +37,6 @@ df
       <th>ticker</th>
       <th>valor</th>
       <th>name</th>
-      <th>index</th>
       <th>inception_date</th>
       <th>age_in_days</th>
       <th>age_in_years</th>
@@ -76,7 +75,7 @@ df
       <th>last_year_max_drawdown</th>
       <th>last_three_years_max_drawdown</th>
       <th>last_five_years_max_drawdown</th>
-      <th>asset</th>
+      <th>asset_class</th>
       <th>instrument</th>
       <th>region</th>
       <th>exchange</th>
@@ -129,159 +128,155 @@ df
       <th></th>
       <th></th>
       <th></th>
-      <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>GB00BM9JYH62</th>
-      <td>A3GZKD</td>
-      <td>AVMX</td>
-      <td>&lt;NA&gt;</td>
-      <td>Global X Aave ETP</td>
-      <td>Aave</td>
-      <td>2023-03-13</td>
-      <td>311</td>
-      <td>0.852055</td>
+      <th>IE00B5BMR087</th>
+      <td>A0YEDG</td>
+      <td>SXR8</td>
+      <td>10737041</td>
+      <td>iShares Core S&amp;P 500 UCITS ETF (Acc)</td>
+      <td>2010-05-19</td>
+      <td>5198</td>
+      <td>14.241096</td>
       <td>Long-only</td>
-      <td>Jersey</td>
-      <td>USD</td>
-      <td>False</td>
-      <td>False</td>
-      <td>Accumulating</td>
-      <td>0.99</td>
-      <td>Physically backed</td>
-      <td>0</td>
-      <td>False</td>
-      <td>&lt;NA&gt;</td>
-      <td>-9.48</td>
-      <td>1.09</td>
-      <td>-6.73</td>
-      <td>56.94</td>
-      <td>38.15</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>-40.18</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>Cryptocurrencies</td>
-      <td>ETN</td>
-      <td></td>
-      <td>gettex, XETRA</td>
-    </tr>
-    <tr>
-      <th>IE000GGQK173</th>
-      <td>A3D4VW</td>
-      <td>R8T</td>
-      <td>125589092</td>
-      <td>abrdn Global Real Estate Active Thematics UCITS ETF USD Accumulating ETF</td>
-      <td>abrdn Global Real Estate Active Thematics</td>
-      <td>2023-02-22</td>
-      <td>330</td>
-      <td>0.904110</td>
-      <td>Long-only, Active</td>
       <td>Ireland</td>
       <td>USD</td>
       <td>False</td>
-      <td>False</td>
+      <td>True</td>
       <td>Accumulating</td>
-      <td>0.40</td>
+      <td>0.07</td>
       <td>Full replication</td>
-      <td>10</td>
-      <td>True</td>
-      <td>&lt;NA&gt;</td>
-      <td>-2.14</td>
-      <td>-1.93</td>
-      <td>-1.82</td>
-      <td>8.67</td>
-      <td>4.21</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>-15.23</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>Real Estate</td>
-      <td>ETF</td>
-      <td>World</td>
-      <td>gettex, XETRA</td>
-    </tr>
-    <tr>
-      <th>IE00B0M62Y33</th>
-      <td>A0HGWF</td>
-      <td>IUSJ</td>
-      <td>2308837</td>
-      <td>iShares AEX UCITS ETF</td>
-      <td>AEX®</td>
-      <td>2005-11-18</td>
-      <td>6635</td>
-      <td>18.178082</td>
-      <td>Long-only</td>
-      <td>Ireland</td>
-      <td>EUR</td>
+      <td>78449</td>
       <td>False</td>
-      <td>True</td>
-      <td>Distributing</td>
-      <td>0.30</td>
-      <td>Full replication</td>
-      <td>573</td>
-      <td>False</td>
-      <td>26</td>
-      <td>-2.49</td>
-      <td>-0.98</td>
-      <td>-3.28</td>
-      <td>4.46</td>
-      <td>0.15</td>
-      <td>4.79</td>
-      <td>25.08</td>
-      <td>70.81</td>
-      <td>16.77</td>
-      <td>-11.78</td>
-      <td>29.89</td>
-      <td>5.14</td>
-      <td>2.18</td>
-      <td>2.23</td>
-      <td>12.06</td>
-      <td>16.27</td>
-      <td>18.5</td>
-      <td>0.4</td>
-      <td>0.48</td>
+      <td>503</td>
+      <td>13.67</td>
+      <td>-1.20</td>
+      <td>-5.42</td>
       <td>0.61</td>
-      <td>-62.93</td>
-      <td>-9.52</td>
-      <td>-22.39</td>
-      <td>-35.73</td>
+      <td>5.04</td>
+      <td>21.13</td>
+      <td>34.36</td>
+      <td>99.91</td>
+      <td>21.54</td>
+      <td>-13.30</td>
+      <td>39.07</td>
+      <td>8.04</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>12.86</td>
+      <td>17.99</td>
+      <td>21.63</td>
+      <td>1.64</td>
+      <td>0.57</td>
+      <td>0.69</td>
+      <td>-33.71</td>
+      <td>-9.09</td>
+      <td>-17.11</td>
+      <td>-33.71</td>
       <td>Equity</td>
       <td>ETF</td>
       <td></td>
-      <td>gettex, London, SIX Swiss Exchange, Euronext Amsterdam</td>
+      <td>gettex, XETRA, London, Stuttgart, SIX Swiss Exchange, Borsa Italiana, Euronext Amsterdam</td>
+    </tr>
+    <tr>
+      <th>IE00B4L5Y983</th>
+      <td>A0RPWH</td>
+      <td>EUNL</td>
+      <td>10608388</td>
+      <td>iShares Core MSCI World UCITS ETF USD (Acc)</td>
+      <td>2009-09-25</td>
+      <td>5434</td>
+      <td>14.887671</td>
+      <td>Long-only</td>
+      <td>Ireland</td>
+      <td>USD</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Accumulating</td>
+      <td>0.20</td>
+      <td>Optimized sampling</td>
+      <td>67967</td>
+      <td>False</td>
+      <td>1429</td>
+      <td>10.85</td>
+      <td>-1.06</td>
+      <td>-4.81</td>
+      <td>-0.59</td>
+      <td>4.28</td>
+      <td>17.87</td>
+      <td>25.66</td>
+      <td>79.25</td>
+      <td>19.55</td>
+      <td>-12.96</td>
+      <td>32.10</td>
+      <td>6.13</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>11.17</td>
+      <td>15.25</td>
+      <td>18.27</td>
+      <td>1.59</td>
+      <td>0.52</td>
+      <td>0.68</td>
+      <td>-33.91</td>
+      <td>-8.75</td>
+      <td>-16.88</td>
+      <td>-33.91</td>
+      <td>Equity</td>
+      <td>ETF</td>
+      <td>World</td>
+      <td>gettex, XETRA, London, Stuttgart, SIX Swiss Exchange, Borsa Italiana, Euronext Amsterdam</td>
+    </tr>
+    <tr>
+      <th>IE00B3XXRP09</th>
+      <td>A1JX53</td>
+      <td>VUSA</td>
+      <td>18575508</td>
+      <td>Vanguard S&amp;P 500 UCITS ETF</td>
+      <td>2012-05-22</td>
+      <td>4464</td>
+      <td>12.230137</td>
+      <td>Long-only</td>
+      <td>Ireland</td>
+      <td>USD</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Distributing</td>
+      <td>0.07</td>
+      <td>Full replication</td>
+      <td>35981</td>
+      <td>False</td>
+      <td>498</td>
+      <td>13.63</td>
+      <td>-1.23</td>
+      <td>-5.45</td>
+      <td>0.57</td>
+      <td>5.01</td>
+      <td>21.08</td>
+      <td>34.31</td>
+      <td>99.85</td>
+      <td>21.54</td>
+      <td>-13.29</td>
+      <td>39.08</td>
+      <td>8.05</td>
+      <td>1.11</td>
+      <td>1.33</td>
+      <td>12.89</td>
+      <td>18.13</td>
+      <td>21.70</td>
+      <td>1.63</td>
+      <td>0.57</td>
+      <td>0.68</td>
+      <td>-33.70</td>
+      <td>-9.09</td>
+      <td>-17.28</td>
+      <td>-33.70</td>
+      <td>Equity</td>
+      <td>ETF</td>
+      <td></td>
+      <td>gettex, XETRA, London, Euronext Paris, Stuttgart, SIX Swiss Exchange, Borsa Italiana, Euronext Amsterdam</td>
     </tr>
   </tbody>
 </table>
@@ -346,7 +341,7 @@ df
       <td>20.60</td>
       <td>0.000000</td>
       <td>0.0</td>
-      <td>0.00</td>
+      <td>0.0</td>
       <td>20.60</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -358,7 +353,7 @@ df
       <td>20.60</td>
       <td>0.000000</td>
       <td>0.0</td>
-      <td>0.00</td>
+      <td>0.0</td>
       <td>20.60</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -370,7 +365,7 @@ df
       <td>20.60</td>
       <td>0.000000</td>
       <td>0.0</td>
-      <td>0.00</td>
+      <td>0.0</td>
       <td>20.60</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -382,7 +377,7 @@ df
       <td>20.99</td>
       <td>1.893204</td>
       <td>0.0</td>
-      <td>0.00</td>
+      <td>0.0</td>
       <td>20.99</td>
       <td>1.893204</td>
       <td>0.000000</td>
@@ -394,7 +389,7 @@ df
       <td>21.03</td>
       <td>2.087379</td>
       <td>0.0</td>
-      <td>0.00</td>
+      <td>0.0</td>
       <td>21.03</td>
       <td>2.087379</td>
       <td>0.000000</td>
@@ -414,68 +409,68 @@ df
       <td>...</td>
     </tr>
     <tr>
-      <th>2024-01-13</th>
-      <td>61.60</td>
-      <td>199.029126</td>
+      <th>2024-08-05</th>
+      <td>64.90</td>
+      <td>215.048544</td>
       <td>0.0</td>
-      <td>9.43</td>
-      <td>71.03</td>
-      <td>244.805825</td>
-      <td>19.169742</td>
-      <td>80.769742</td>
-      <td>292.086128</td>
+      <td>9.9</td>
+      <td>74.80</td>
+      <td>263.106796</td>
+      <td>20.643909</td>
+      <td>85.543909</td>
+      <td>315.261692</td>
     </tr>
     <tr>
-      <th>2024-01-14</th>
-      <td>61.60</td>
-      <td>199.029126</td>
+      <th>2024-08-06</th>
+      <td>65.95</td>
+      <td>220.145631</td>
       <td>0.0</td>
-      <td>9.43</td>
-      <td>71.03</td>
-      <td>244.805825</td>
-      <td>19.169742</td>
-      <td>80.769742</td>
-      <td>292.086128</td>
+      <td>9.9</td>
+      <td>75.85</td>
+      <td>268.203883</td>
+      <td>20.977901</td>
+      <td>86.927901</td>
+      <td>321.980101</td>
     </tr>
     <tr>
-      <th>2024-01-15</th>
-      <td>61.48</td>
-      <td>198.446602</td>
+      <th>2024-08-07</th>
+      <td>65.74</td>
+      <td>219.126214</td>
       <td>0.0</td>
-      <td>9.43</td>
-      <td>70.91</td>
-      <td>244.223301</td>
-      <td>19.132399</td>
-      <td>80.612399</td>
-      <td>291.322324</td>
+      <td>9.9</td>
+      <td>75.64</td>
+      <td>267.184466</td>
+      <td>20.911102</td>
+      <td>86.651102</td>
+      <td>320.636419</td>
     </tr>
     <tr>
-      <th>2024-01-16</th>
-      <td>61.51</td>
-      <td>198.592233</td>
+      <th>2024-08-08</th>
+      <td>66.80</td>
+      <td>224.271845</td>
       <td>0.0</td>
-      <td>9.43</td>
-      <td>70.94</td>
-      <td>244.368932</td>
-      <td>19.141735</td>
-      <td>80.651735</td>
-      <td>291.513275</td>
+      <td>9.9</td>
+      <td>76.70</td>
+      <td>272.330097</td>
+      <td>21.248276</td>
+      <td>88.048276</td>
+      <td>327.418814</td>
     </tr>
     <tr>
-      <th>2024-01-17</th>
-      <td>61.19</td>
-      <td>197.038835</td>
+      <th>2024-08-09</th>
+      <td>67.05</td>
+      <td>225.485437</td>
       <td>0.0</td>
-      <td>9.43</td>
-      <td>70.62</td>
-      <td>242.815534</td>
-      <td>19.042151</td>
-      <td>80.232151</td>
-      <td>289.476464</td>
+      <td>9.9</td>
+      <td>76.95</td>
+      <td>273.543689</td>
+      <td>21.327798</td>
+      <td>88.377798</td>
+      <td>329.018435</td>
     </tr>
   </tbody>
 </table>
-<p>6656 rows × 9 columns</p>
+<p>6861 rows × 9 columns</p>
 
 Compare
 
@@ -535,33 +530,33 @@ df
       <td>...</td>
     </tr>
     <tr>
-      <th>2024-01-13</th>
-      <td>219.523167</td>
-      <td>114.806165</td>
+      <th>2024-08-05</th>
+      <td>236.482231</td>
+      <td>120.784680</td>
     </tr>
     <tr>
-      <th>2024-01-14</th>
-      <td>219.523167</td>
-      <td>114.806165</td>
+      <th>2024-08-06</th>
+      <td>241.205578</td>
+      <td>123.960766</td>
     </tr>
     <tr>
-      <th>2024-01-15</th>
-      <td>218.983356</td>
-      <td>114.572630</td>
+      <th>2024-08-07</th>
+      <td>240.260909</td>
+      <td>127.136852</td>
     </tr>
     <tr>
-      <th>2024-01-16</th>
-      <td>219.118309</td>
-      <td>112.937879</td>
+      <th>2024-08-08</th>
+      <td>245.029240</td>
+      <td>127.697338</td>
     </tr>
     <tr>
-      <th>2024-01-17</th>
-      <td>217.678812</td>
-      <td>108.967772</td>
+      <th>2024-08-09</th>
+      <td>246.153846</td>
+      <td>128.304531</td>
     </tr>
   </tbody>
 </table>
-<p>6635 rows × 2 columns</p>
+<p>6840 rows × 2 columns</p>
 
 For further exploration examples, see [Jupyter Notebooks](notebooks/)
 
