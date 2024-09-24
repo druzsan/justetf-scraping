@@ -373,6 +373,9 @@ def load_overview(
     df = pd.DataFrame(data)
     # Remove ignored columns.
     df = df.drop(columns=df.columns.intersection(IGNORED_COLUMNS))
+    if len(df) == 0:
+        # No rows received.
+        return df
     # Reorder columns.
     if set(df.columns.tolist()) == set(COLUMN_NAMES):
         columns = list(COLUMN_NAMES)
