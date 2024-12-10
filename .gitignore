@@ -3,6 +3,7 @@
 .ruff_cache/
 .vscode/
 dev/
+data/
 *.csv
 *.html
 
