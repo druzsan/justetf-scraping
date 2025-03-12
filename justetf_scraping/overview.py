@@ -246,6 +246,7 @@ def get_raw_overview(
     strategies = list(STRATEGIES) if strategy is None else [strategy]
     rows: List[Dict[str, Any]] = []
     with requests.Session() as session:
+        session.headers.update({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'})
         html_response = session.get(f"{BASE_URL}?search=ETFS")
         if match := PATTERN.search(html_response.text):
             counter = int(match.group(1))
