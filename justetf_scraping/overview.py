@@ -12,6 +12,9 @@ import pycountry
 import pycountry.db
 import requests
 
+from random_user_agent.user_agent import UserAgent
+from random_user_agent.params import SoftwareType
+
 from justetf_scraping.types import (
     ASSET_CLASSES,
     EXCHANGES,
@@ -28,6 +31,8 @@ from justetf_scraping.types import (
     Strategy,
     Universe,
 )
+
+USER_AGENT_ROTATOR = UserAgent(software_types=[SoftwareType.WEB_BROWSER.value], limit=100)
 
 BASE_URL = "https://www.justetf.com/en/search.html"
 BASE_DATA = {"draw": 1, "start": 0, "length": -1}
@@ -246,6 +251,7 @@ def get_raw_overview(
     strategies = list(STRATEGIES) if strategy is None else [strategy]
     rows: List[Dict[str, Any]] = []
     with requests.Session() as session:
+        session.headers = {"user-agent": USER_AGENT_ROTATOR.get_random_user_agent()}
         html_response = session.get(f"{BASE_URL}?search=ETFS")
         if match := PATTERN.search(html_response.text):
             counter = int(match.group(1))
