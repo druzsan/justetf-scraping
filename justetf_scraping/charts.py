@@ -8,6 +8,7 @@ from typing import Dict, Literal
 import pandas as pd
 import requests
 
+from justetf_scraping.helpers import assert_response_status_ok
 from justetf_scraping.types import Currency
 
 BASE_URL = "https://www.justetf.com/api/etfs/{isin}/performance-chart"
@@ -71,14 +72,7 @@ def load_chart(isin: str, currency: Currency = "EUR") -> pd.DataFrame:
     """
     url = BASE_URL.format(isin=isin)
     response = requests.get(url, params={**BASE_PARAMS, "currency": currency})
-    if response.status_code != requests.codes.ok:
-        filepath = "chart-error-page.html"
-        with open(filepath, "w") as file:
-            file.write(response.text)
-        raise RuntimeError(
-            f"Got status {response.status_code} when requesting chart. "
-            f"Error page saved to '{filepath}'"
-        )
+    assert_response_status_ok(response, "chart")
     data = response.json()
 
     df = parse_series(data["series"], "quote")

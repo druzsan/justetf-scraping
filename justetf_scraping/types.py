@@ -1,3 +1,7 @@
+"""
+Common types used in package.
+"""
+
 from typing import Dict, Literal
 
 # Global settings for all return data.
