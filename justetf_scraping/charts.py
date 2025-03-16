@@ -8,7 +8,7 @@ from typing import Dict, Literal
 import pandas as pd
 import requests
 
-from justetf_scraping.helpers import assert_response_status_ok
+from justetf_scraping.helpers import USER_AGENT, assert_response_status_ok
 from justetf_scraping.types import Currency
 
 BASE_URL = "https://www.justetf.com/api/etfs/{isin}/performance-chart"
@@ -71,7 +71,11 @@ def load_chart(isin: str, currency: Currency = "EUR") -> pd.DataFrame:
                 immediately.
     """
     url = BASE_URL.format(isin=isin)
-    response = requests.get(url, params={**BASE_PARAMS, "currency": currency})
+    response = requests.get(
+        url,
+        params={**BASE_PARAMS, "currency": currency},
+        headers={"User-Agent": USER_AGENT},
+    )
     assert_response_status_ok(response, "chart")
     data = response.json()
 

@@ -12,7 +12,7 @@ import pycountry
 import pycountry.db
 import requests
 
-from justetf_scraping.helpers import assert_response_status_ok
+from justetf_scraping.helpers import USER_AGENT, assert_response_status_ok
 from justetf_scraping.types import (
     ASSET_CLASSES,
     EXCHANGES,
@@ -247,6 +247,7 @@ def get_raw_overview(
     strategies = list(STRATEGIES) if strategy is None else [strategy]
     rows: List[Dict[str, Any]] = []
     with requests.Session() as session:
+        session.headers["User-Agent"] = USER_AGENT
         html_response = session.get(f"{BASE_URL}?search=ETFS")
         assert_response_status_ok(html_response, "overview-html")
         if match := PATTERN.search(html_response.text):

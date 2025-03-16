@@ -6,6 +6,9 @@ from typing import Optional
 
 import requests
 
+# justETF seems to block default requests' user agent, so define a custom one
+USER_AGENT = "My User Agent 1.0"
+
 
 def assert_response_status_ok(
     response: requests.Response,
