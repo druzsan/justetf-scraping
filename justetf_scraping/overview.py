@@ -12,13 +12,16 @@ import pycountry
 import pycountry.db
 import requests
 
-from justetf_scraping.helpers import USER_AGENT, assert_response_status_ok
-from justetf_scraping.types import (
+from .helpers import (
     ASSET_CLASSES,
     EXCHANGES,
     INSTRUMENTS,
     REGIONS,
     STRATEGIES,
+    USER_AGENT,
+    assert_response_status_ok,
+)
+from .types import (
     AssetClass,
     Country,
     Currency,

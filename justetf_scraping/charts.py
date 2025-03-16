@@ -8,8 +8,8 @@ from typing import Dict, Literal
 import pandas as pd
 import requests
 
-from justetf_scraping.helpers import USER_AGENT, assert_response_status_ok
-from justetf_scraping.types import Currency
+from .helpers import USER_AGENT, assert_response_status_ok
+from .types import Currency
 
 BASE_URL = "https://www.justetf.com/api/etfs/{isin}/performance-chart"
 BASE_PARAMS = {
