@@ -12,12 +12,16 @@ import pycountry
 import pycountry.db
 import requests
 
-from justetf_scraping.types import (
+from .helpers import (
     ASSET_CLASSES,
     EXCHANGES,
     INSTRUMENTS,
     REGIONS,
     STRATEGIES,
+    USER_AGENT,
+    assert_response_status_ok,
+)
+from .types import (
     AssetClass,
     Country,
     Currency,
@@ -246,7 +250,9 @@ def get_raw_overview(
     strategies = list(STRATEGIES) if strategy is None else [strategy]
     rows: List[Dict[str, Any]] = []
     with requests.Session() as session:
+        session.headers["User-Agent"] = USER_AGENT
         html_response = session.get(f"{BASE_URL}?search=ETFS")
+        assert_response_status_ok(html_response, "overview-html")
         if match := PATTERN.search(html_response.text):
             counter = int(match.group(1))
         else:
@@ -275,14 +281,7 @@ def get_raw_overview(
                     ),
                 },
             )
-            if response.status_code != requests.codes.ok:
-                filepath = "overview-error-page.html"
-                with open(filepath, "w") as file:
-                    file.write(response.text)
-                raise RuntimeError(
-                    f"Got status {response.status_code} when requesting chart. "
-                    f"Error page saved to '{filepath}'"
-                )
+            assert_response_status_ok(response, "overview")
             strategy_rows = response.json()["data"]
             for row in strategy_rows:
                 for old_row in rows:

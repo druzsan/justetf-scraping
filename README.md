@@ -29,6 +29,7 @@ df = justetf_scraping.load_overview()
 df
 ```
 
+<div>
 <table>
   <thead>
     <tr style="text-align: right;">
@@ -43,28 +44,7 @@ df
       <th>strategy</th>
       <th>domicile_country</th>
       <th>currency</th>
-      <th>hedged</th>
-      <th>securities_lending</th>
-      <th>dividends</th>
-      <th>ter</th>
-      <th>replication</th>
-      <th>size</th>
-      <th>is_sustainable</th>
-      <th>number_of_holdings</th>
-      <th>yesterday</th>
-      <th>last_week</th>
-      <th>last_month</th>
-      <th>last_three_months</th>
-      <th>last_six_months</th>
-      <th>last_year</th>
-      <th>last_three_years</th>
-      <th>last_five_years</th>
-      <th>2023</th>
-      <th>2022</th>
-      <th>2021</th>
-      <th>2020</th>
-      <th>last_dividends</th>
-      <th>last_year_dividends</th>
+      <th>...</th>
       <th>last_year_volatility</th>
       <th>last_three_years_volatility</th>
       <th>last_five_years_volatility</th>
@@ -75,38 +55,9 @@ df
       <th>last_year_max_drawdown</th>
       <th>last_three_years_max_drawdown</th>
       <th>last_five_years_max_drawdown</th>
-      <th>asset_class</th>
-      <th>instrument</th>
-      <th>region</th>
-      <th>exchange</th>
     </tr>
     <tr>
       <th>isin</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -132,53 +83,52 @@ df
   </thead>
   <tbody>
     <tr>
+      <th>IE00B5BMR087</th>
+      <td>A0YEDG</td>
+      <td>SXR8</td>
+      <td>10737041</td>
+      <td>iShares Core S&amp;P 500 UCITS ETF USD (Acc)</td>
+      <td>2010-05-19</td>
+      <td>5415</td>
+      <td>14.835616</td>
+      <td>Long-only</td>
+      <td>Ireland</td>
+      <td>USD</td>
+      <td>...</td>
+      <td>15.73</td>
+      <td>18.00</td>
+      <td>20.09</td>
+      <td>0.67</td>
+      <td>0.67</td>
+      <td>0.88</td>
+      <td>-33.71</td>
+      <td>-13.39</td>
+      <td>-15.92</td>
+      <td>-17.11</td>
+    </tr>
+    <tr>
       <th>IE00B4L5Y983</th>
       <td>A0RPWH</td>
       <td>EUNL</td>
       <td>10608388</td>
       <td>iShares Core MSCI World UCITS ETF USD (Acc)</td>
       <td>2009-09-25</td>
-      <td>5555</td>
-      <td>15.219178</td>
+      <td>5651</td>
+      <td>15.482192</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>USD</td>
-      <td>False</td>
-      <td>True</td>
-      <td>Accumulating</td>
-      <td>0.20</td>
-      <td>Optimized sampling</td>
-      <td>88335</td>
-      <td>False</td>
-      <td>1409</td>
-      <td>28.62</td>
-      <td>0.14</td>
-      <td>3.48</td>
-      <td>13.61</td>
-      <td>14.62</td>
-      <td>30.54</td>
-      <td>36.24</td>
-      <td>90.45</td>
-      <td>19.55</td>
-      <td>-12.96</td>
-      <td>32.10</td>
-      <td>6.13</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>11.83</td>
-      <td>15.29</td>
-      <td>18.35</td>
-      <td>2.57</td>
-      <td>0.71</td>
-      <td>0.75</td>
+      <td>...</td>
+      <td>13.79</td>
+      <td>15.27</td>
+      <td>17.02</td>
+      <td>0.73</td>
+      <td>0.72</td>
+      <td>0.97</td>
       <td>-33.91</td>
-      <td>-8.75</td>
+      <td>-11.24</td>
+      <td>-15.01</td>
       <td>-16.88</td>
-      <td>-33.91</td>
-      <td>Equity</td>
-      <td>ETF</td>
-      <td>World</td>
-      <td>gettex, XETRA, London, Stuttgart, SIX Swiss Exchange, Borsa Italiana, Euronext Amsterdam</td>
     </tr>
     <tr>
       <th>IE00B3XXRP09</th>
@@ -187,47 +137,22 @@ df
       <td>18575508</td>
       <td>Vanguard S&amp;P 500 UCITS ETF (USD) Distributing</td>
       <td>2012-05-22</td>
-      <td>4585</td>
-      <td>12.561644</td>
+      <td>4681</td>
+      <td>12.824658</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>USD</td>
-      <td>False</td>
-      <td>True</td>
-      <td>Distributing</td>
-      <td>0.07</td>
-      <td>Full replication</td>
-      <td>43952</td>
-      <td>False</td>
-      <td>487</td>
-      <td>34.27</td>
-      <td>-0.32</td>
-      <td>3.16</td>
-      <td>16.07</td>
-      <td>17.53</td>
-      <td>35.75</td>
-      <td>44.35</td>
-      <td>116.12</td>
-      <td>21.54</td>
-      <td>-13.29</td>
-      <td>39.08</td>
-      <td>8.05</td>
-      <td>0.95</td>
-      <td>1.27</td>
-      <td>13.67</td>
-      <td>18.25</td>
-      <td>21.76</td>
-      <td>2.61</td>
-      <td>0.71</td>
-      <td>0.76</td>
+      <td>...</td>
+      <td>15.95</td>
+      <td>18.20</td>
+      <td>20.19</td>
+      <td>0.66</td>
+      <td>0.66</td>
+      <td>0.87</td>
       <td>-33.70</td>
-      <td>-9.09</td>
+      <td>-13.43</td>
+      <td>-16.10</td>
       <td>-17.28</td>
-      <td>-33.70</td>
-      <td>Equity</td>
-      <td>ETF</td>
-      <td></td>
-      <td>gettex, XETRA, London, Euronext Paris, Stuttgart, SIX Swiss Exchange, Borsa Italiana, Euronext Amsterdam</td>
     </tr>
     <tr>
       <th>IE00B3YCGJ38</th>
@@ -236,50 +161,195 @@ df
       <td>11358996</td>
       <td>Invesco S&amp;P 500 UCITS ETF</td>
       <td>2010-05-20</td>
-      <td>5318</td>
-      <td>14.569863</td>
+      <td>5414</td>
+      <td>14.832877</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>USD</td>
-      <td>False</td>
-      <td>False</td>
-      <td>Accumulating</td>
-      <td>0.05</td>
-      <td>Swap based Unfunded</td>
-      <td>27500</td>
-      <td>False</td>
-      <td>&lt;NA&gt;</td>
-      <td>34.71</td>
-      <td>-0.16</td>
-      <td>3.34</td>
-      <td>16.30</td>
-      <td>17.82</td>
-      <td>36.20</td>
-      <td>45.49</td>
-      <td>118.77</td>
-      <td>21.80</td>
-      <td>-13.10</td>
-      <td>39.37</td>
-      <td>8.31</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>13.66</td>
-      <td>18.16</td>
-      <td>21.75</td>
-      <td>2.64</td>
-      <td>0.73</td>
-      <td>0.78</td>
+      <td>...</td>
+      <td>15.87</td>
+      <td>18.08</td>
+      <td>20.16</td>
+      <td>0.69</td>
+      <td>0.68</td>
+      <td>0.89</td>
       <td>-33.69</td>
-      <td>-9.09</td>
+      <td>-13.61</td>
+      <td>-16.06</td>
       <td>-17.20</td>
-      <td>-33.69</td>
-      <td>Equity</td>
-      <td>ETF</td>
-      <td></td>
-      <td>gettex, XETRA, London, SIX Swiss Exchange, Borsa Italiana, Euronext Amsterdam</td>
+    </tr>
+    <tr>
+      <th>IE00BKM4GZ66</th>
+      <td>A111X9</td>
+      <td>IS3N</td>
+      <td>24209517</td>
+      <td>iShares Core MSCI Emerging Markets IMI UCITS E...</td>
+      <td>2014-05-30</td>
+      <td>3943</td>
+      <td>10.802740</td>
+      <td>Long-only</td>
+      <td>Ireland</td>
+      <td>USD</td>
+      <td>...</td>
+      <td>14.27</td>
+      <td>14.24</td>
+      <td>15.79</td>
+      <td>0.64</td>
+      <td>0.36</td>
+      <td>0.54</td>
+      <td>-34.34</td>
+      <td>-10.36</td>
+      <td>-17.53</td>
+      <td>-23.61</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>IE00BF4TW453</th>
+      <td>A2F4WK</td>
+      <td>XMWH</td>
+      <td>&lt;NA&gt;</td>
+      <td>WisdomTree Bund 30Y 3x Daily Short</td>
+      <td>2017-12-08</td>
+      <td>2655</td>
+      <td>7.273973</td>
+      <td>Short &amp; Leveraged</td>
+      <td>Ireland</td>
+      <td>EUR</td>
+      <td>...</td>
+      <td>43.83</td>
+      <td>58.07</td>
+      <td>NaN</td>
+      <td>0.85</td>
+      <td>0.65</td>
+      <td>NaN</td>
+      <td>-49.46</td>
+      <td>-30.58</td>
+      <td>-49.46</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>XS2427363036</th>
+      <td>A3GWVS</td>
+      <td>2FLY</td>
+      <td>&lt;NA&gt;</td>
+      <td>WisdomTree STOXX Europe Travel &amp; Leisure 2x Da...</td>
+      <td>2022-03-02</td>
+      <td>1110</td>
+      <td>3.041096</td>
+      <td>Short &amp; Leveraged</td>
+      <td>Ireland</td>
+      <td>EUR</td>
+      <td>...</td>
+      <td>33.07</td>
+      <td>43.18</td>
+      <td>NaN</td>
+      <td>-0.46</td>
+      <td>0.19</td>
+      <td>NaN</td>
+      <td>-42.03</td>
+      <td>-36.10</td>
+      <td>-42.03</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>JE00B24DKJ77</th>
+      <td>A0V6Y0</td>
+      <td>4RTE</td>
+      <td>&lt;NA&gt;</td>
+      <td>WisdomTree Nickel 1x Daily Short</td>
+      <td>2008-02-22</td>
+      <td>6232</td>
+      <td>17.073973</td>
+      <td>Short &amp; Leveraged</td>
+      <td>Jersey</td>
+      <td>USD</td>
+      <td>...</td>
+      <td>25.45</td>
+      <td>46.59</td>
+      <td>49.48</td>
+      <td>0.56</td>
+      <td>0.51</td>
+      <td>-0.51</td>
+      <td>-96.99</td>
+      <td>-23.84</td>
+      <td>-47.83</td>
+      <td>-89.44</td>
+    </tr>
+    <tr>
+      <th>XS2842095759</th>
+      <td>&lt;NA&gt;</td>
+      <td>3SBB</td>
+      <td>&lt;NA&gt;</td>
+      <td>GraniteShares 3x Short Alibaba Daily ETP</td>
+      <td>2022-02-02</td>
+      <td>1138</td>
+      <td>3.117808</td>
+      <td>Short &amp; Leveraged</td>
+      <td>Ireland</td>
+      <td>USD</td>
+      <td>...</td>
+      <td>130.77</td>
+      <td>154.54</td>
+      <td>NaN</td>
+      <td>-0.73</td>
+      <td>-0.58</td>
+      <td>NaN</td>
+      <td>-99.88</td>
+      <td>-95.97</td>
+      <td>-99.88</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>XS2427474023</th>
+      <td>A3GWVN</td>
+      <td>O2IG</td>
+      <td>&lt;NA&gt;</td>
+      <td>WisdomTree STOXX Europe Oil &amp; Gas 2x Daily Short</td>
+      <td>2022-03-02</td>
+      <td>1110</td>
+      <td>3.041096</td>
+      <td>Short &amp; Leveraged</td>
+      <td>Ireland</td>
+      <td>EUR</td>
+      <td>...</td>
+      <td>32.07</td>
+      <td>41.70</td>
+      <td>NaN</td>
+      <td>-0.29</td>
+      <td>-0.59</td>
+      <td>NaN</td>
+      <td>-63.42</td>
+      <td>-23.03</td>
+      <td>-61.78</td>
+      <td>NaN</td>
     </tr>
   </tbody>
 </table>
+<p>3486 rows × 42 columns</p>
+</div>
 
 Further enrich the data with additional information (asset class, region, exchanges and instrument, it requires further requests):
 
@@ -409,68 +479,68 @@ df
       <td>...</td>
     </tr>
     <tr>
-      <th>2024-12-05</th>
-      <td>77.86</td>
-      <td>277.961165</td>
+      <th>2025-03-10</th>
+      <td>74.54</td>
+      <td>261.844660</td>
       <td>0.0</td>
-      <td>10.04</td>
-      <td>87.90</td>
-      <td>326.699029</td>
-      <td>24.922629</td>
-      <td>102.782629</td>
-      <td>398.944801</td>
+      <td>10.22</td>
+      <td>84.76</td>
+      <td>311.456311</td>
+      <td>24.032814</td>
+      <td>98.572814</td>
+      <td>378.508807</td>
     </tr>
     <tr>
-      <th>2024-12-06</th>
-      <td>77.70</td>
-      <td>277.184466</td>
+      <th>2025-03-11</th>
+      <td>73.96</td>
+      <td>259.029126</td>
       <td>0.0</td>
-      <td>10.04</td>
-      <td>87.74</td>
-      <td>325.922330</td>
-      <td>24.871414</td>
-      <td>102.571414</td>
-      <td>397.919484</td>
+      <td>10.22</td>
+      <td>84.18</td>
+      <td>308.640777</td>
+      <td>23.845814</td>
+      <td>97.805814</td>
+      <td>374.785503</td>
     </tr>
     <tr>
-      <th>2024-12-07</th>
-      <td>77.70</td>
-      <td>277.184466</td>
+      <th>2025-03-12</th>
+      <td>74.37</td>
+      <td>261.019417</td>
       <td>0.0</td>
-      <td>10.04</td>
-      <td>87.74</td>
-      <td>325.922330</td>
-      <td>24.871414</td>
-      <td>102.571414</td>
-      <td>397.919484</td>
+      <td>10.22</td>
+      <td>84.59</td>
+      <td>310.631068</td>
+      <td>23.978004</td>
+      <td>98.348004</td>
+      <td>377.417494</td>
     </tr>
     <tr>
-      <th>2024-12-08</th>
-      <td>77.70</td>
-      <td>277.184466</td>
+      <th>2025-03-13</th>
+      <td>70.64</td>
+      <td>242.912621</td>
       <td>0.0</td>
-      <td>10.04</td>
-      <td>87.74</td>
-      <td>325.922330</td>
-      <td>24.871414</td>
-      <td>102.571414</td>
-      <td>397.919484</td>
+      <td>10.22</td>
+      <td>80.86</td>
+      <td>292.524272</td>
+      <td>22.775396</td>
+      <td>93.415396</td>
+      <td>353.472795</td>
     </tr>
     <tr>
-      <th>2024-12-09</th>
-      <td>77.60</td>
-      <td>276.699029</td>
+      <th>2025-03-14</th>
+      <td>71.49</td>
+      <td>247.038835</td>
       <td>0.0</td>
-      <td>10.04</td>
-      <td>87.64</td>
-      <td>325.436893</td>
-      <td>24.839404</td>
-      <td>102.439404</td>
-      <td>397.278661</td>
+      <td>10.22</td>
+      <td>81.71</td>
+      <td>296.650485</td>
+      <td>23.049449</td>
+      <td>94.539449</td>
+      <td>358.929362</td>
     </tr>
   </tbody>
 </table>
-<p>6983 rows × 9 columns</p>
+<p>7078 rows × 9 columns</p>
 
 Compare
 
@@ -530,33 +600,33 @@ df
       <td>...</td>
     </tr>
     <tr>
-      <th>2024-12-05</th>
-      <td>295.411606</td>
-      <td>143.390939</td>
+      <th>2025-03-10</th>
+      <td>281.286550</td>
+      <td>147.874825</td>
     </tr>
     <tr>
-      <th>2024-12-06</th>
-      <td>294.691858</td>
-      <td>143.110696</td>
+      <th>2025-03-11</th>
+      <td>278.677463</td>
+      <td>147.220925</td>
     </tr>
     <tr>
-      <th>2024-12-07</th>
-      <td>294.691858</td>
-      <td>143.110696</td>
+      <th>2025-03-12</th>
+      <td>280.521817</td>
+      <td>147.594582</td>
     </tr>
     <tr>
-      <th>2024-12-08</th>
-      <td>294.691858</td>
-      <td>143.110696</td>
+      <th>2025-03-13</th>
+      <td>263.742690</td>
+      <td>138.953760</td>
     </tr>
     <tr>
-      <th>2024-12-09</th>
-      <td>294.242015</td>
-      <td>146.987389</td>
+      <th>2025-03-14</th>
+      <td>267.566352</td>
+      <td>141.569360</td>
     </tr>
   </tbody>
 </table>
-<p>6962 rows × 2 columns</p>
+<p>7057 rows × 2 columns</p>
 
 For further exploration examples, see [Jupyter Notebooks](notebooks/)
 
