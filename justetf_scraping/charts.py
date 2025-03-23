@@ -1,6 +1,6 @@
 """
 Scrape ETF chart data from justETF
-(e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983).
+(e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983#chart).
 """
 
 from typing import Dict, Literal
