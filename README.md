@@ -20,7 +20,7 @@ pip install justetf-scraping[all]@git+https://github.com/druzsan/justetf-scrapin
 
 ### 📋 Scrape the [justETF Screener](https://www.justetf.com/en/find-etf.html)
 
-Load overviews for all available (over 3400 at the moment) ETFs (requires a request for all ETF type: long-only, active, short & leveraged):
+Load overviews for all available (over 3500 at the moment) ETFs (requires a request for all ETF type: long-only, active, short & leveraged):
 
 ```python
 import justetf_scraping
@@ -29,7 +29,6 @@ df = justetf_scraping.load_overview()
 df
 ```
 
-<div>
 <table>
   <thead>
     <tr style="text-align: right;">
@@ -89,20 +88,20 @@ df
       <td>10737041</td>
       <td>iShares Core S&amp;P 500 UCITS ETF USD (Acc)</td>
       <td>2010-05-19</td>
-      <td>5415</td>
-      <td>14.835616</td>
+      <td>5422</td>
+      <td>14.854795</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>USD</td>
       <td>...</td>
-      <td>15.73</td>
-      <td>18.00</td>
-      <td>20.09</td>
-      <td>0.67</td>
-      <td>0.67</td>
-      <td>0.88</td>
+      <td>15.43</td>
+      <td>17.83</td>
+      <td>18.80</td>
+      <td>0.64</td>
+      <td>0.58</td>
+      <td>1.11</td>
       <td>-33.71</td>
-      <td>-13.39</td>
+      <td>-13.35</td>
       <td>-15.92</td>
       <td>-17.11</td>
     </tr>
@@ -113,20 +112,20 @@ df
       <td>10608388</td>
       <td>iShares Core MSCI World UCITS ETF USD (Acc)</td>
       <td>2009-09-25</td>
-      <td>5651</td>
-      <td>15.482192</td>
+      <td>5658</td>
+      <td>15.501370</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>USD</td>
       <td>...</td>
-      <td>13.79</td>
-      <td>15.27</td>
-      <td>17.02</td>
-      <td>0.73</td>
+      <td>13.34</td>
+      <td>15.05</td>
+      <td>16.01</td>
       <td>0.72</td>
-      <td>0.97</td>
+      <td>0.63</td>
+      <td>1.19</td>
       <td>-33.91</td>
-      <td>-11.24</td>
+      <td>-11.29</td>
       <td>-15.01</td>
       <td>-16.88</td>
     </tr>
@@ -137,20 +136,20 @@ df
       <td>18575508</td>
       <td>Vanguard S&amp;P 500 UCITS ETF (USD) Distributing</td>
       <td>2012-05-22</td>
-      <td>4681</td>
-      <td>12.824658</td>
+      <td>4688</td>
+      <td>12.843836</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>USD</td>
       <td>...</td>
-      <td>15.95</td>
-      <td>18.20</td>
-      <td>20.19</td>
-      <td>0.66</td>
-      <td>0.66</td>
-      <td>0.87</td>
+      <td>15.63</td>
+      <td>18.04</td>
+      <td>18.91</td>
+      <td>0.61</td>
+      <td>0.56</td>
+      <td>1.10</td>
       <td>-33.70</td>
-      <td>-13.43</td>
+      <td>-13.35</td>
       <td>-16.10</td>
       <td>-17.28</td>
     </tr>
@@ -161,20 +160,20 @@ df
       <td>11358996</td>
       <td>Invesco S&amp;P 500 UCITS ETF</td>
       <td>2010-05-20</td>
-      <td>5414</td>
-      <td>14.832877</td>
+      <td>5421</td>
+      <td>14.852055</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>USD</td>
       <td>...</td>
-      <td>15.87</td>
-      <td>18.08</td>
-      <td>20.16</td>
-      <td>0.69</td>
-      <td>0.68</td>
-      <td>0.89</td>
+      <td>15.45</td>
+      <td>17.88</td>
+      <td>18.85</td>
+      <td>0.62</td>
+      <td>0.58</td>
+      <td>1.12</td>
       <td>-33.69</td>
-      <td>-13.61</td>
+      <td>-13.34</td>
       <td>-16.06</td>
       <td>-17.20</td>
     </tr>
@@ -185,18 +184,18 @@ df
       <td>24209517</td>
       <td>iShares Core MSCI Emerging Markets IMI UCITS E...</td>
       <td>2014-05-30</td>
-      <td>3943</td>
-      <td>10.802740</td>
+      <td>3950</td>
+      <td>10.821918</td>
       <td>Long-only</td>
       <td>Ireland</td>
       <td>USD</td>
       <td>...</td>
-      <td>14.27</td>
-      <td>14.24</td>
-      <td>15.79</td>
-      <td>0.64</td>
-      <td>0.36</td>
-      <td>0.54</td>
+      <td>13.51</td>
+      <td>13.46</td>
+      <td>14.97</td>
+      <td>0.75</td>
+      <td>0.29</td>
+      <td>0.70</td>
       <td>-34.34</td>
       <td>-10.36</td>
       <td>-17.53</td>
@@ -227,51 +226,27 @@ df
       <td>...</td>
     </tr>
     <tr>
-      <th>IE00BF4TW453</th>
-      <td>A2F4WK</td>
-      <td>XMWH</td>
-      <td>&lt;NA&gt;</td>
-      <td>WisdomTree Bund 30Y 3x Daily Short</td>
-      <td>2017-12-08</td>
-      <td>2655</td>
-      <td>7.273973</td>
-      <td>Short &amp; Leveraged</td>
-      <td>Ireland</td>
-      <td>EUR</td>
-      <td>...</td>
-      <td>43.83</td>
-      <td>58.07</td>
-      <td>NaN</td>
-      <td>0.85</td>
-      <td>0.65</td>
-      <td>NaN</td>
-      <td>-49.46</td>
-      <td>-30.58</td>
-      <td>-49.46</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
       <th>XS2427363036</th>
       <td>A3GWVS</td>
       <td>2FLY</td>
       <td>&lt;NA&gt;</td>
       <td>WisdomTree STOXX Europe Travel &amp; Leisure 2x Da...</td>
       <td>2022-03-02</td>
-      <td>1110</td>
-      <td>3.041096</td>
+      <td>1117</td>
+      <td>3.060274</td>
       <td>Short &amp; Leveraged</td>
       <td>Ireland</td>
       <td>EUR</td>
       <td>...</td>
-      <td>33.07</td>
-      <td>43.18</td>
+      <td>33.31</td>
+      <td>42.83</td>
       <td>NaN</td>
-      <td>-0.46</td>
-      <td>0.19</td>
+      <td>-0.53</td>
+      <td>0.08</td>
       <td>NaN</td>
       <td>-42.03</td>
       <td>-36.10</td>
-      <td>-42.03</td>
+      <td>-41.91</td>
       <td>NaN</td>
     </tr>
     <tr>
@@ -281,18 +256,18 @@ df
       <td>&lt;NA&gt;</td>
       <td>WisdomTree Nickel 1x Daily Short</td>
       <td>2008-02-22</td>
-      <td>6232</td>
-      <td>17.073973</td>
+      <td>6239</td>
+      <td>17.093151</td>
       <td>Short &amp; Leveraged</td>
       <td>Jersey</td>
       <td>USD</td>
       <td>...</td>
-      <td>25.45</td>
-      <td>46.59</td>
-      <td>49.48</td>
-      <td>0.56</td>
-      <td>0.51</td>
-      <td>-0.51</td>
+      <td>25.36</td>
+      <td>46.61</td>
+      <td>49.42</td>
+      <td>0.54</td>
+      <td>0.54</td>
+      <td>-0.54</td>
       <td>-96.99</td>
       <td>-23.84</td>
       <td>-47.83</td>
@@ -305,21 +280,45 @@ df
       <td>&lt;NA&gt;</td>
       <td>GraniteShares 3x Short Alibaba Daily ETP</td>
       <td>2022-02-02</td>
-      <td>1138</td>
-      <td>3.117808</td>
+      <td>1145</td>
+      <td>3.136986</td>
       <td>Short &amp; Leveraged</td>
       <td>Ireland</td>
       <td>USD</td>
       <td>...</td>
-      <td>130.77</td>
-      <td>154.54</td>
+      <td>132.24</td>
+      <td>147.11</td>
       <td>NaN</td>
-      <td>-0.73</td>
-      <td>-0.58</td>
+      <td>-0.72</td>
+      <td>-0.56</td>
       <td>NaN</td>
-      <td>-99.88</td>
-      <td>-95.97</td>
-      <td>-99.88</td>
+      <td>-99.90</td>
+      <td>-96.62</td>
+      <td>-99.72</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>XS2437455608</th>
+      <td>A3GXB6</td>
+      <td>STR2</td>
+      <td>&lt;NA&gt;</td>
+      <td>WisdomTree STOXX Europe Travel &amp; Leisure 2x Da...</td>
+      <td>2022-03-02</td>
+      <td>1117</td>
+      <td>3.060274</td>
+      <td>Short &amp; Leveraged</td>
+      <td>Ireland</td>
+      <td>EUR</td>
+      <td>...</td>
+      <td>33.19</td>
+      <td>42.81</td>
+      <td>NaN</td>
+      <td>0.26</td>
+      <td>-0.48</td>
+      <td>NaN</td>
+      <td>-71.68</td>
+      <td>-42.95</td>
+      <td>-71.27</td>
       <td>NaN</td>
     </tr>
     <tr>
@@ -329,27 +328,26 @@ df
       <td>&lt;NA&gt;</td>
       <td>WisdomTree STOXX Europe Oil &amp; Gas 2x Daily Short</td>
       <td>2022-03-02</td>
-      <td>1110</td>
-      <td>3.041096</td>
+      <td>1117</td>
+      <td>3.060274</td>
       <td>Short &amp; Leveraged</td>
       <td>Ireland</td>
       <td>EUR</td>
       <td>...</td>
-      <td>32.07</td>
-      <td>41.70</td>
+      <td>32.28</td>
+      <td>41.67</td>
       <td>NaN</td>
-      <td>-0.29</td>
+      <td>-0.40</td>
       <td>-0.59</td>
       <td>NaN</td>
       <td>-63.42</td>
-      <td>-23.03</td>
-      <td>-61.78</td>
+      <td>-25.16</td>
+      <td>-58.53</td>
       <td>NaN</td>
     </tr>
   </tbody>
 </table>
-<p>3486 rows × 42 columns</p>
-</div>
+<p>3503 rows × 42 columns</p>
 
 Further enrich the data with additional information (asset class, region, exchanges and instrument, it requires further requests):
 
@@ -369,7 +367,7 @@ Load MSCI World ETFs:
 df = justetf_scraping.load_overview(strategy="epg-longOnly", index="MSCI World")
 ```
 
-### 📈 Scrape ETF Chart Data from justETF ([e.g.](https://www.justetf.com/en/etf-profile.html?isin=IE00B0M62Q58#chart))
+### 📈 Scrape ETF Chart Data from justETF ([e.g.](https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983#chart))
 
 Load the whole history of a chosen ETF by its ISIN:
 
@@ -479,70 +477,70 @@ df
       <td>...</td>
     </tr>
     <tr>
-      <th>2025-03-10</th>
-      <td>74.54</td>
-      <td>261.844660</td>
+      <th>2025-03-17</th>
+      <td>72.19</td>
+      <td>250.436893</td>
       <td>0.0</td>
-      <td>10.22</td>
-      <td>84.76</td>
-      <td>311.456311</td>
-      <td>24.032814</td>
-      <td>98.572814</td>
-      <td>378.508807</td>
+      <td>10.34</td>
+      <td>82.53</td>
+      <td>300.631068</td>
+      <td>23.397581</td>
+      <td>95.587581</td>
+      <td>364.017386</td>
     </tr>
     <tr>
-      <th>2025-03-11</th>
-      <td>73.96</td>
-      <td>259.029126</td>
+      <th>2025-03-18</th>
+      <td>71.61</td>
+      <td>247.621359</td>
       <td>0.0</td>
-      <td>10.22</td>
-      <td>84.18</td>
-      <td>308.640777</td>
-      <td>23.845814</td>
-      <td>97.805814</td>
-      <td>374.785503</td>
+      <td>10.34</td>
+      <td>81.95</td>
+      <td>297.815534</td>
+      <td>23.209597</td>
+      <td>94.819597</td>
+      <td>360.289306</td>
     </tr>
     <tr>
-      <th>2025-03-12</th>
-      <td>74.37</td>
-      <td>261.019417</td>
+      <th>2025-03-19</th>
+      <td>72.32</td>
+      <td>251.067961</td>
       <td>0.0</td>
-      <td>10.22</td>
-      <td>84.59</td>
-      <td>310.631068</td>
-      <td>23.978004</td>
-      <td>98.348004</td>
-      <td>377.417494</td>
+      <td>10.34</td>
+      <td>82.66</td>
+      <td>301.262136</td>
+      <td>23.439716</td>
+      <td>95.759716</td>
+      <td>364.852990</td>
     </tr>
     <tr>
-      <th>2025-03-13</th>
-      <td>70.64</td>
-      <td>242.912621</td>
+      <th>2025-03-20</th>
+      <td>72.52</td>
+      <td>252.038835</td>
       <td>0.0</td>
-      <td>10.22</td>
-      <td>80.86</td>
-      <td>292.524272</td>
-      <td>22.775396</td>
-      <td>93.415396</td>
-      <td>353.472795</td>
+      <td>10.34</td>
+      <td>82.86</td>
+      <td>302.233010</td>
+      <td>23.504538</td>
+      <td>96.024538</td>
+      <td>366.138534</td>
     </tr>
     <tr>
-      <th>2025-03-14</th>
-      <td>71.49</td>
-      <td>247.038835</td>
+      <th>2025-03-21</th>
+      <td>72.42</td>
+      <td>251.553398</td>
       <td>0.0</td>
-      <td>10.22</td>
-      <td>81.71</td>
-      <td>296.650485</td>
-      <td>23.049449</td>
-      <td>94.539449</td>
-      <td>358.929362</td>
+      <td>10.34</td>
+      <td>82.76</td>
+      <td>301.747573</td>
+      <td>23.472127</td>
+      <td>95.892127</td>
+      <td>365.495762</td>
     </tr>
   </tbody>
 </table>
-<p>7078 rows × 9 columns</p>
+<p>7085 rows × 9 columns</p>
 
-Compare
+Compare multiple charts based on some value:
 
 ```python
 df = justetf_scraping.compare_charts(
@@ -600,33 +598,148 @@ df
       <td>...</td>
     </tr>
     <tr>
-      <th>2025-03-10</th>
-      <td>281.286550</td>
-      <td>147.874825</td>
+      <th>2025-03-17</th>
+      <td>271.255061</td>
+      <td>142.830453</td>
     </tr>
     <tr>
-      <th>2025-03-11</th>
-      <td>278.677463</td>
-      <td>147.220925</td>
+      <th>2025-03-18</th>
+      <td>268.645974</td>
+      <td>144.932275</td>
     </tr>
     <tr>
-      <th>2025-03-12</th>
-      <td>280.521817</td>
-      <td>147.594582</td>
+      <th>2025-03-19</th>
+      <td>271.839856</td>
+      <td>145.025689</td>
     </tr>
     <tr>
-      <th>2025-03-13</th>
-      <td>263.742690</td>
-      <td>138.953760</td>
+      <th>2025-03-20</th>
+      <td>272.739541</td>
+      <td>144.231667</td>
     </tr>
     <tr>
-      <th>2025-03-14</th>
-      <td>267.566352</td>
-      <td>141.569360</td>
+      <th>2025-03-21</th>
+      <td>272.289699</td>
+      <td>144.231667</td>
     </tr>
   </tbody>
 </table>
-<p>7057 rows × 2 columns</p>
+<p>7064 rows × 2 columns</p>
+
+### 📋 Scrape ETF stock exchange listings from justETF ([e.g.](https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983#stock-exchange))
+
+Load stock exchange listings of a chosen ETF by its ISIN:
+
+```python
+df = justetf_scraping.load_listings("IE00B4L5Y983")
+df
+```
+
+<table>
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Listing</th>
+      <th>Trade Currency</th>
+      <th>Ticker</th>
+      <th>Bloomberg /  iNAV Bloomberg Code</th>
+      <th>Reuters RIC /  iNAV Reuters</th>
+      <th>Market Maker</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>London Stock Exchange</td>
+      <td>GBX</td>
+      <td>SWDA</td>
+      <td>- -</td>
+      <td>- -</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>gettex</td>
+      <td>EUR</td>
+      <td>EUNL</td>
+      <td>- -</td>
+      <td>- -</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Stuttgart Stock Exchange</td>
+      <td>EUR</td>
+      <td>EUNL</td>
+      <td>- -</td>
+      <td>- -</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Bolsa Mexicana de Valores</td>
+      <td>MXN</td>
+      <td>-</td>
+      <td>IWDAN MM</td>
+      <td>IWDAN.MX</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Borsa Italiana</td>
+      <td>EUR</td>
+      <td>SWDA</td>
+      <td>SWDA IM INAVIWDE</td>
+      <td>SWDA.MI IWDAEUR.DE</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Euronext Amsterdam</td>
+      <td>EUR</td>
+      <td>IWDA</td>
+      <td>IWDA NA INAVIWDE</td>
+      <td>IWDA.AS IWDAEUR.DE</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>London Stock Exchange</td>
+      <td>USD</td>
+      <td>IWDA</td>
+      <td>IWDA LN INAVIWDU</td>
+      <td>IWAD.L IWDAUSD.DE</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>London Stock Exchange</td>
+      <td>GBP</td>
+      <td>SWDA</td>
+      <td>SWDA LN INAVIWDG</td>
+      <td>SWDA.L 0TV6INAV.DE</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>SIX Swiss Exchange</td>
+      <td>USD</td>
+      <td>SWDA</td>
+      <td>SWDA SE INAVIWDU</td>
+      <td>SWDA.S FX0AINAV.DE</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>XETRA</td>
+      <td>EUR</td>
+      <td>EUNL</td>
+      <td>EUNL GY INAVIWDE</td>
+      <td>EUNL.DE IWDAEUR.DE</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 
 For further exploration examples, see [Jupyter Notebooks](notebooks/)
 

@@ -1,5 +1,5 @@
 """
-Parse ETF overview data from justETF (https://www.justetf.com/en/find-etf.html).
+Scrape ETF overview data from justETF (https://www.justetf.com/en/find-etf.html).
 """
 
 import itertools
