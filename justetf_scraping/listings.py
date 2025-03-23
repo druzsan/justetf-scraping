@@ -1,5 +1,5 @@
 """
-Scrape ETF Stock exchange listings from justETF
+Scrape ETF stock exchange listings from justETF
 (e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983#stock-exchange).
 """
 

@@ -1,5 +1,5 @@
 """
-Scrape ETF chart data from justETF
+Scrape and compare ETF chart data from justETF
 (e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983#chart).
 """
 
