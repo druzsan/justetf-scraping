@@ -142,6 +142,7 @@ def get_etf_params(
     index_provider: Optional[str] = None,
     index: Optional[str] = None,
     isin: Optional[str] = None,
+    extra_queries: Optional[Dict[str, Any]] = None,
 ) -> str:
     """
     Build `etfParams` for ETF data request for `BASE_PARAMS` enrichment.
@@ -167,6 +168,13 @@ def get_etf_params(
         index: Optional index query. Can be spotted in `qroupIndex` field in any
             response.
         isin: Optional ISIN query.
+        extra_queries: Raw extra queries. Will be appended to the `etfParams` as
+            is, so be sure not to duplicate any queries explicitaly listed as
+            arguments and to use proper raw keys, e.g.:
+                equity: "sector", "equityStrategy", "theme",
+                bonds: "currency", "bondType", "bm", "bondRating", "bondStrategy",
+                commodities: "cf" and "ctype",
+                money market: "currency".
     """
     etf_params = f"search=ETF&productGroup={strategy}"
     if exchange is not None:
@@ -201,6 +209,9 @@ def get_etf_params(
         etf_params += f"&index={index}"
     if isin is not None:
         etf_params += f"&query={isin}"
+    if extra_queries is not None:
+        for key, value in extra_queries.items():
+            etf_params += f"&{key}={value}"
     return etf_params
 
 
@@ -215,6 +226,7 @@ def get_raw_overview(
     index_provider: Optional[str] = None,
     index: Optional[str] = None,
     isin: Optional[str] = None,
+    extra_queries: Optional[Dict[str, Any]] = None,
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
@@ -245,6 +257,13 @@ def get_raw_overview(
         local_country: Optional response country, see `Country`.
         universe: Optional investor type, see `Universe`.
         currency: Currency to get data in, see `Currency`.
+        extra_queries: Raw extra queries. Will be appended to the `etfParams` as
+            is, so be sure not to duplicate any queries explicitaly listed as
+            arguments and to use proper raw keys, e.g.:
+                equity: "sector", "equityStrategy", "theme",
+                bonds: "currency", "bondType", "bm", "bondRating", "bondStrategy",
+                commodities: "cf" and "ctype",
+                money market: "currency".
     """
     # If `strategy` is `None`, make requests for all strategies.
     strategies = list(STRATEGIES) if strategy is None else [strategy]
@@ -306,6 +325,7 @@ def load_overview(
     index_provider: Optional[str] = None,
     index: Optional[str] = None,
     isin: Optional[str] = None,
+    extra_queries: Optional[Dict[str, Any]] = None,
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
@@ -334,6 +354,13 @@ def load_overview(
         index: Optional index query. Can be spotted in `qroupIndex` field in any
             response.
         isin: Optional ISIN query.
+        extra_queries: Raw extra queries. Will be appended to the `etfParams` as
+            is, so be sure not to duplicate any queries explicitaly listed as
+            arguments and to use proper raw keys, e.g.:
+                equity: "sector", "equityStrategy", "theme",
+                bonds: "currency", "bondType", "bm", "bondRating", "bondStrategy",
+                commodities: "cf" and "ctype",
+                money market: "currency".
         language: Optional language for the response data, see `Language` for
             available options.
         local_country: Optional response country, see `Country` for available
@@ -358,6 +385,7 @@ def load_overview(
         index_provider,
         index,
         isin,
+        extra_queries,
         language,
         local_country,
         universe,
