@@ -18,7 +18,7 @@ BASE_PARAMS = {
     "reduceData": "false",
     "includeDividends": "false",
     "features": "DIVIDENDS",
-}
+    }
 
 
 def parse_series(raw_series: Dict, value_name: str = "value") -> pd.DataFrame:
@@ -37,7 +37,19 @@ def relative(series: pd.Series) -> pd.Series:
     return 100 * (series / series.iloc[0] - 1)
 
 
-def load_chart(isin: str, currency: Currency = "EUR") -> pd.DataFrame:
+def query_chart(isin: str, currency: Currency = "EUR") -> dict:
+    url = BASE_URL.format(isin=isin)
+    response = requests.get(
+        url,
+        params={**BASE_PARAMS, "currency": currency},
+        headers={"User-Agent": USER_AGENT},
+        )
+    assert_response_status_ok(response, "chart")
+    data = response.json()
+    return data
+
+
+def load_chart(isin: str, currency: Currency = "EUR", addCurrentValue: bool = False) -> pd.DataFrame:
     """
     Get and enrich an ETF chart for the whole time period.
 
@@ -70,14 +82,7 @@ def load_chart(isin: str, currency: Currency = "EUR") -> pd.DataFrame:
                 payed out until the given date if they were reinvested
                 immediately.
     """
-    url = BASE_URL.format(isin=isin)
-    response = requests.get(
-        url,
-        params={**BASE_PARAMS, "currency": currency},
-        headers={"User-Agent": USER_AGENT},
-    )
-    assert_response_status_ok(response, "chart")
-    data = response.json()
+    data = query_chart(isin, currency)
 
     df = parse_series(data["series"], "quote")
     df["relative"] = relative(df["quote"])
@@ -90,26 +95,40 @@ def load_chart(isin: str, currency: Currency = "EUR") -> pd.DataFrame:
     df["relative_with_dividends"] = relative(df["quote_with_dividends"])
     df["reinvested_dividends"] = 0
     for index, row in dividends_df.iterrows():
-        df["reinvested_dividends"] += (
-            df["quote"] * row["dividends"] / df.at[index, "quote"]
-        ).mask(df.index < index, 0)
+        df["reinvested_dividends"] += (df["quote"] * row["dividends"] / df.at[index, "quote"]).mask(df.index < index, 0)
     df["quote_with_reinvested_dividends"] = df["quote"] + df["reinvested_dividends"]
-    df["relative_with_reinvested_dividends"] = relative(
-        df["quote_with_reinvested_dividends"]
-    )
+    df["relative_with_reinvested_dividends"] = relative(df["quote_with_reinvested_dividends"])
+    if addCurrentValue:
+        latestDate = data["latestDate"]
+        latestQuote = data["latestQuote"]["raw"]
+        if latestDate not in df.index:
+            first_quote = df["quote"].iloc[0]
+            first_quote_with_dividends = df["quote_with_dividends"].iloc[0]
+            first_quote_with_reinvested = df["quote_with_reinvested_dividends"].iloc[0]
+            new_row = pd.DataFrame({
+                "quote": [latestQuote],
+                "relative": [100 * (latestQuote / first_quote - 1)],
+                "dividends": [0],
+                "cumulative_dividends": [0],
+                "quote_with_dividends": [latestQuote],
+                "relative_with_dividends": [100 * (latestQuote / first_quote_with_dividends - 1)],
+                "reinvested_dividends": [0],
+                "quote_with_reinvested_dividends": [latestQuote],
+                "relative_with_reinvested_dividends": [100 * (latestQuote / first_quote_with_reinvested - 1)]
+                }, index=[pd.to_datetime(latestDate)])
+            df = pd.concat([df, new_row])
 
     df.index.name = "date"
     return df
 
+# TODO: add Metadata extraction like countries or Sectors
 
 def compare_charts(
-    charts: Dict[str, pd.DataFrame],
-    dates: Literal["shortest", "longest"] = "shortest",
-    input_value: Literal[
-        "quote", "quote_with_dividends", "quote_with_reinvested_dividends"
-    ] = "quote_with_dividends",
-    output_value: Literal["absolute", "relative", "percentage"] = "percentage",
-) -> pd.DataFrame:
+        charts: Dict[str, pd.DataFrame],
+        dates: Literal["shortest", "longest"] = "shortest",
+        input_value: Literal["quote", "quote_with_dividends", "quote_with_reinvested_dividends"] = "quote_with_dividends",
+        output_value: Literal["absolute", "relative", "percentage"] = "percentage",
+        ) -> pd.DataFrame:
     longest_chart = max(charts.values(), key=len)
     charts_df = pd.DataFrame(index=longest_chart.index)
     for isin, chart in charts.items():
@@ -123,7 +142,7 @@ def compare_charts(
         raise ValueError(
             f"`dates` argument must be one of 'shortest' or 'longest', but "
             f"value '{dates}' received."
-        )
+            )
 
     if output_value == "absolute":
         return charts_df
@@ -134,4 +153,4 @@ def compare_charts(
     raise ValueError(
         f"`output_value` argument must be one of 'absolute', 'relative' or "
         f"'percentage', but value '{output_value}' received."
-    )
+        )

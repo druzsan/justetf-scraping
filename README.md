@@ -1,19 +1,19 @@
 # 💹 justETF Scraping
 
-Scrape the [justETF](https://www.justetf.com).
+Scrape the [justETF](https://www.justetf.com) - Fork optimize for [LibreFolio](https://github.com/Alfystar/LibreFolio) code.
 
 ## 🛠️ Installation
 
 To use justETF scraping package in your project, install the actual version from GitHub:
 
 ```shell
-pip install git+https://github.com/druzsan/justetf-scraping.git
+pip install git+https://github.com/Alfystar/justetf-scraping.git
 ```
 
 If you are going to play [notebooks](./notebooks) through, use the following installation:
 
 ```shell
-pip install justetf-scraping[all]@git+https://github.com/druzsan/justetf-scraping.git
+pip install justetf-scraping[all]@git+https://github.com/Alfystar/justetf-scraping.git
 ```
 
 ## 🚀 Usage
