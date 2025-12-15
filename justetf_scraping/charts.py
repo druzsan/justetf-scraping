@@ -99,9 +99,9 @@ def load_chart(isin: str, currency: Currency = "EUR", addCurrentValue: bool = Fa
     df["quote_with_reinvested_dividends"] = df["quote"] + df["reinvested_dividends"]
     df["relative_with_reinvested_dividends"] = relative(df["quote_with_reinvested_dividends"])
     if addCurrentValue:
-        latestDate = data["latestDate"]
+        latestQuoteDate = data["latestQuoteDate"]
         latestQuote = data["latestQuote"]["raw"]
-        if latestDate not in df.index:
+        if latestQuoteDate not in df.index:
             first_quote = df["quote"].iloc[0]
             first_quote_with_dividends = df["quote_with_dividends"].iloc[0]
             first_quote_with_reinvested = df["quote_with_reinvested_dividends"].iloc[0]
@@ -115,7 +115,7 @@ def load_chart(isin: str, currency: Currency = "EUR", addCurrentValue: bool = Fa
                 "reinvested_dividends": [0],
                 "quote_with_reinvested_dividends": [latestQuote],
                 "relative_with_reinvested_dividends": [100 * (latestQuote / first_quote_with_reinvested - 1)]
-                }, index=[pd.to_datetime(latestDate)])
+                }, index=[pd.to_datetime(latestQuoteDate)])
             df = pd.concat([df, new_row])
 
     df.index.name = "date"
