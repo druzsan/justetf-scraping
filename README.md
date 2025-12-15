@@ -10,6 +10,11 @@ To use justETF scraping package in your project, install the actual version from
 pip install git+https://github.com/Alfystar/justetf-scraping.git
 ```
 
+If you are using pipenv:
+```shell
+pipenv install git+https://github.com/Alfystar/justetf-scraping.git
+```
+
 If you are going to play [notebooks](./notebooks) through, use the following installation:
 
 ```shell
