@@ -38,6 +38,43 @@ def relative(series: pd.Series) -> pd.Series:
 
 
 def query_chart(isin: str, currency: Currency = "EUR") -> dict:
+    """
+    :param isin:
+    :param currency:
+    :return: dictionary with this structure:
+{
+    "latestQuote": {
+        "raw": 9.94, "localized": "9.94"
+    },
+    "latestQuoteDate": "2025-12-16",
+    "price": {
+        "raw": 9.96, "localized": "9.96"
+    },
+    "performance": {
+        "raw": 3.86, "localized": "3.86"
+    },
+    "prevDaySeries": [],
+    "series": [
+        {
+            "date": "2025-11-15",
+            "value": {
+                "raw": 9.59, "localized": "9.59"
+            }
+        },
+        {
+            "date": "2025-12-15",
+            "value": {
+                "raw": 9.96, "localized": "9.96"
+            }
+        }
+    ],
+    "latestDate": "2025-12-15",
+    "endOfDay": "2025-12-16T21:00:00Z",
+    "features": {
+        "DIVIDENDS": []
+    }
+}
+    """
     url = BASE_URL.format(isin=isin)
     response = requests.get(
         url,
