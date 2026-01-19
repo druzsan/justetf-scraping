@@ -403,7 +403,7 @@ def load_overview(
         )
     # Convert columns.
     for column in df.columns.intersection(BOOL_COLUMNS):
-        df[column] = df[column].replace({"Yes": True, "No": False}).astype("bool")
+        df[column] = df[column].map({"Yes": True, "No": False}).astype("bool")
     for column in df.columns.intersection(INT64_COLUMNS):
         if column in df:
             df[column] = df[column].astype("Int64")

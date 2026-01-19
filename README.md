@@ -1,19 +1,25 @@
 # 💹 justETF Scraping
 
-Scrape the [justETF](https://www.justetf.com).
+Scrape the [justETF](https://www.justetf.com) - Fork optimize for [LibreFolio](https://github.com/Alfystar/LibreFolio) code.
 
 ## 🛠️ Installation
 
 To use justETF scraping package in your project, install the actual version from GitHub:
 
 ```shell
-pip install git+https://github.com/druzsan/justetf-scraping.git
+pip install git+https://github.com/Alfystar/justetf-scraping.git
+```
+
+If you are using pipenv:
+
+```shell
+pipenv install git+https://github.com/Alfystar/justetf-scraping.git
 ```
 
 If you are going to play [notebooks](./notebooks) through, use the following installation:
 
 ```shell
-pip install justetf-scraping[all]@git+https://github.com/druzsan/justetf-scraping.git
+pip install justetf-scraping[all]@git+https://github.com/Alfystar/justetf-scraping.git
 ```
 
 ## 🚀 Usage
@@ -371,11 +377,28 @@ df = justetf_scraping.load_overview(strategy="epg-longOnly", index="MSCI World")
 
 ### 📈 Scrape ETF Chart Data from justETF ([e.g.](https://www.justetf.com/en/etf-profile.html?isin=IE00B0M62Q58#chart))
 
+#### Get raw chart data with `query_chart`
+
+Get the raw JSON response from justETF API:
+
+```python
+data = justetf_scraping.query_chart("IE00B0M62Q58")
+# Returns dict with: latestQuote, latestQuoteDate, price, performance, series, etc.
+```
+
+#### Load and process chart data with `load_chart`
+
 Load the whole history of a chosen ETF by its ISIN:
 
 ```python
 df = justetf_scraping.load_chart("IE00B0M62Q58")
 df
+```
+
+You can also include the current day's value in the response (useful for up-to-date data):
+
+```python
+df = justetf_scraping.load_chart("IE00B0M62Q58", addCurrentValue=True)
 ```
 
 <table>
@@ -549,9 +572,9 @@ df = justetf_scraping.compare_charts(
     {
         "IE00B0M62Q58": justetf_scraping.load_chart("IE00B0M62Q58"),
         "IE00B0M63177": justetf_scraping.load_chart("IE00B0M63177"),
-    },
+        },
     input_value="quote_with_dividends"
-)
+    )
 df
 ```
 
@@ -627,6 +650,81 @@ df
   </tbody>
 </table>
 <p>7057 rows × 2 columns</p>
+
+### 🔍 Scrape ETF Profile Data (NEW!)
+
+Get comprehensive ETF profile data including description, holdings allocation by country and sector, and real-time quotes from gettex.
+
+#### Get complete ETF overview with `get_etf_overview`
+
+```python
+overview = justetf_scraping.get_etf_overview("IE00B3RBWM25")
+
+# Access basic info
+print(f"Name: {overview['name']}")
+print(f"TER: {overview['ter']}%")
+print(f"Fund Size: EUR {overview['fund_size_eur']}m")
+print(f"Description: {overview['description']}")
+
+# Access country allocation (full list, not truncated)
+for country in overview['countries']:
+    print(f"  {country['name']}: {country['percentage']}%")
+
+# Access sector allocation (full list)
+for sector in overview['sectors']:
+    print(f"  {sector['name']}: {sector['percentage']}%")
+
+# Access top 10 holdings with their ISINs
+for holding in overview['top_holdings']:
+    print(f"  {holding['name']} ({holding['isin']}): {holding['percentage']}%")
+
+# Access real-time gettex quote
+quote = overview['gettex']
+print(f"Bid: {quote['bid']} {quote['currency']}")
+print(f"Ask: {quote['ask']} {quote['currency']}")
+print(f"Day Change: {quote['day_change_percent']}%")
+```
+
+The `get_etf_overview` function returns a dictionary with:
+
+| Field                 | Type  | Description                      |
+|-----------------------|-------|----------------------------------|
+| `isin`                | str   | ISIN code                        |
+| `name`                | str   | ETF name                         |
+| `description`         | str   | Short description                |
+| `index`               | str   | Tracked index                    |
+| `ter`                 | float | Total Expense Ratio (e.g., 0.19) |
+| `fund_size_eur`       | float | Fund size in EUR millions        |
+| `replication`         | str   | Replication method               |
+| `fund_currency`       | str   | Fund currency                    |
+| `distribution_policy` | str   | Distributing/Accumulating        |
+| `inception_date`      | str   | Launch date                      |
+| `fund_domicile`       | str   | Country of domicile              |
+| `countries`           | list  | Full country allocation          |
+| `sectors`             | list  | Full sector allocation           |
+| `top_holdings`        | list  | Top 10 holdings with ISINs       |
+| `gettex`              | dict  | Real-time quote data             |
+
+#### Get real-time gettex quote only with `get_gettex_quote`
+
+```python
+quote = justetf_scraping.get_gettex_quote("IE00B3RBWM25")
+
+print(f"Bid: {quote['bid']} EUR")
+print(f"Ask: {quote['ask']} EUR")
+print(f"Spread: {quote['spread_percent']}%")
+print(f"Day Change: {quote['day_change_percent']}%")
+print(f"Timestamp: {quote['timestamp']}")  # datetime object
+```
+
+#### Get raw gettex data with `get_gettex_quote_raw`
+
+```python
+raw_data = justetf_scraping.get_gettex_quote_raw("IE00B3RBWM25")
+# Returns the raw JSON response from the WebSocket
+```
+
+For a complete example, see [test_scrape.py](notebooks/test_scrape.py)
 
 For further exploration examples, see [Jupyter Notebooks](notebooks/)
 
