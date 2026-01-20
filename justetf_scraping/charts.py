@@ -3,7 +3,7 @@ Scrape ETF chart data from justETF
 (e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983).
 """
 
-from typing import Dict, Literal
+from typing import Literal, TypedDict
 
 import pandas as pd
 import requests
@@ -21,7 +21,42 @@ BASE_PARAMS = {
 }
 
 
-def parse_series(raw_series: Dict, value_name: str = "value") -> pd.DataFrame:
+class RawQuote(TypedDict):
+    """
+    Raw quote value.
+    """
+
+    raw: float
+    localized: str
+
+
+class RawSeriesItem(TypedDict):
+    """
+    Raw series item.
+    """
+
+    date: str
+    value: RawQuote
+
+
+class RawChart(TypedDict):
+    """
+    Raw chart data.
+    """
+
+    latestQuote: RawQuote
+    latestQuoteDate: str
+    price: RawQuote
+    performance: RawQuote
+    series: list[RawSeriesItem]
+    latestDate: str
+    endOfDay: str
+    features: dict[str, list[RawSeriesItem]]
+
+
+def parse_series(
+    raw_series: list[RawSeriesItem], value_name: str = "value"
+) -> pd.DataFrame:
     """
     Parse data series as Pandas DataFrame from the received JSON format.
     """
@@ -37,43 +72,16 @@ def relative(series: pd.Series) -> pd.Series:
     return 100 * (series / series.iloc[0] - 1)
 
 
-def query_chart(isin: str, currency: Currency = "EUR") -> dict:
+def load_raw_chart(isin: str, currency: Currency = "EUR") -> RawChart:
     """
-        :param isin:
-        :param currency:
-        :return: dictionary with this structure:
-    {
-        "latestQuote": {
-            "raw": 9.94, "localized": "9.94"
-        },
-        "latestQuoteDate": "2025-12-16",
-        "price": {
-            "raw": 9.96, "localized": "9.96"
-        },
-        "performance": {
-            "raw": 3.86, "localized": "3.86"
-        },
-        "prevDaySeries": [],
-        "series": [
-            {
-                "date": "2025-11-15",
-                "value": {
-                    "raw": 9.59, "localized": "9.59"
-                }
-            },
-            {
-                "date": "2025-12-15",
-                "value": {
-                    "raw": 9.96, "localized": "9.96"
-                }
-            }
-        ],
-        "latestDate": "2025-12-15",
-        "endOfDay": "2025-12-16T21:00:00Z",
-        "features": {
-            "DIVIDENDS": []
-        }
-    }
+    Get a raw ETF chart for the whole time period.
+
+    Args:
+        isin: ISIN of an ETF.
+        currency: Currency to get data in, see `Currency` for available options.
+
+    Returns:
+        Raw chart data as `RawChart`.
     """
     url = BASE_URL.format(isin=isin)
     response = requests.get(
@@ -87,7 +95,7 @@ def query_chart(isin: str, currency: Currency = "EUR") -> dict:
 
 
 def load_chart(
-    isin: str, currency: Currency = "EUR", add_current_value: bool = False
+    isin: str, currency: Currency = "EUR", unclosed: bool = False
 ) -> pd.DataFrame:
     """
     Get and enrich an ETF chart for the whole time period.
@@ -95,6 +103,8 @@ def load_chart(
     Args:
         isin: ISIN of an ETF.
         currency: Currency to get data in, see `Currency` for available options.
+        unclosed: If True, include the current day's quote even if the day is
+            not closed yet.
 
     Returns:
         Pandas DataFrame with dates as index and following columns:
@@ -121,7 +131,16 @@ def load_chart(
                 payed out until the given date if they were reinvested
                 immediately.
     """
-    data = query_chart(isin, currency)
+    data = load_raw_chart(isin, currency)
+
+    raw_series = data["series"]
+    if unclosed:
+        raw_series.append(
+            {
+                "date": data["latestQuoteDate"],
+                "value": data["latestQuote"],
+            }
+        )
 
     df = parse_series(data["series"], "quote")
     df["relative"] = relative(df["quote"])
@@ -141,42 +160,13 @@ def load_chart(
     df["relative_with_reinvested_dividends"] = relative(
         df["quote_with_reinvested_dividends"]
     )
-    if add_current_value:
-        latest_quote_date = data["latestQuoteDate"]
-        latest_quote = data["latestQuote"]["raw"]
-        if latest_quote_date not in df.index:
-            first_quote = df["quote"].iloc[0]
-            first_quote_with_dividends = df["quote_with_dividends"].iloc[0]
-            first_quote_with_reinvested = df["quote_with_reinvested_dividends"].iloc[0]
-            new_row = pd.DataFrame(
-                {
-                    "quote": [latest_quote],
-                    "relative": [100 * (latest_quote / first_quote - 1)],
-                    "dividends": [0],
-                    "cumulative_dividends": [0],
-                    "quote_with_dividends": [latest_quote],
-                    "relative_with_dividends": [
-                        100 * (latest_quote / first_quote_with_dividends - 1)
-                    ],
-                    "reinvested_dividends": [0],
-                    "quote_with_reinvested_dividends": [latest_quote],
-                    "relative_with_reinvested_dividends": [
-                        100 * (latest_quote / first_quote_with_reinvested - 1)
-                    ],
-                },
-                index=[pd.to_datetime(latest_quote_date)],
-            )
-            df = pd.concat([df, new_row])
 
     df.index.name = "date"
     return df
 
 
-# TODO: add Metadata extraction like countries or Sectors
-
-
 def compare_charts(
-    charts: Dict[str, pd.DataFrame],
+    charts: dict[str, pd.DataFrame],
     dates: Literal["shortest", "longest"] = "shortest",
     input_value: Literal[
         "quote", "quote_with_dividends", "quote_with_reinvested_dividends"
@@ -185,6 +175,18 @@ def compare_charts(
 ) -> pd.DataFrame:
     """
     Compare charts of multiple ETFs.
+
+    Args:
+        charts: Dictionary of ISINs and their charts as `pd.DataFrame`.
+        dates: If "shortest", include only the shortest common date range.
+            If "longest", include all dates.
+        input_value: Value to compare for each ISIN, one of "quote",
+            "quote_with_dividends", "quote_with_reinvested_dividends".
+        output_value: Value to return for each ISIN, one of "absolute",
+            "relative", "percentage".
+
+    Returns:
+        Pandas DataFrame with dates as index and given ISINs as columns.
     """
     longest_chart = max(charts.values(), key=len)
     charts_df = pd.DataFrame(index=longest_chart.index)

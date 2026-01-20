@@ -27,3 +27,7 @@ lint: ## Lint code
 .PHONY: typecheck
 typecheck: ## Check code types
 	uv run ty check --error-on-warning
+
+.PHONY: test
+test: ## Run tests
+	uv run pytest

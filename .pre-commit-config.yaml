@@ -19,6 +19,12 @@ repos:
         entry: uv run ty check --error-on-warning
         language: system
         types: [python]
+      - id: pytest
+        name: backend tests
+        entry: uv --directory backend run pytest tests/unit
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
 
   # "official" pre-commit hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks

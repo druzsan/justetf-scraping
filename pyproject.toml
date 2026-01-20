@@ -32,6 +32,7 @@ dev = [
     "ipython>=8.38.0",
     "pandas-stubs>=2.3.3.260113",
     "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
     "ruff>=0.14.13",
     "ty>=0.0.12",
     "types-requests>=2.32.4.20260107",
@@ -40,6 +41,9 @@ dev = [
 [tool.ruff.lint]
 # see https://docs.astral.sh/ruff/rules/ for more
 extend-select = ["A", "ANN", "B", "D1", "I", "N"]
+
+[tool.pytest]
+testpaths = ["tests"]
 
 [build-system]
 requires = ["uv_build>=0.9.22,<0.10.0"]
