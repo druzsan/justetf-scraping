@@ -10,24 +10,20 @@ help: ## Print this help message
 
 .PHONY: init
 init: ## Locally install all dev dependencies
-	poetry install --all-extras
+	uv sync --all-extras
 
-.PHONY: clean
-clean: ## Clean project
-	rm -rf .ruff_cache/ .mypy_cache/
-
-.PHONY: check-format
-check-format: ## Check code formatting
-	poetry run black --check .
+.PHONY: check
+check: ## Run static checks
+check: format lint typecheck
 
 .PHONY: format
-format: ## Fix code formatting
-	poetry run black .
-
-.PHONY: typecheck
-typecheck: ## Typecheck all source files
-	poetry run mypy -p justetf_scraping
+format: ## Format code
+	uv run ruff format --target-version py312 --exit-non-zero-on-format
 
 .PHONY: lint
-lint: ## Lint all source files
-	poetry run ruff justetf_scraping
+lint: ## Lint code
+	uv run ruff check --fix --show-fixes --exit-non-zero-on-fix
+
+.PHONY: typecheck
+typecheck: ## Check code types
+	uv run ty check --error-on-warning
