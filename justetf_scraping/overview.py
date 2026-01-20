@@ -256,7 +256,9 @@ def get_raw_overview(
         if match := PATTERN.search(html_response.text):
             counter = int(match.group(1))
         else:
-            warnings.warn("Cannot parse dynamic counter from HTML page, assuming 0.")
+            warnings.warn(
+                "Cannot parse dynamic counter from HTML page, assuming 0.", stacklevel=2
+            )
             counter = 0
         for strategy_ in strategies:
             response = session.post(
@@ -386,7 +388,7 @@ def load_overview(
             message += "\n\tMissing columns: '" + "', '".join(missing_columns) + "'."
         if unknown_columns:
             message += "\n\tUnknown columns: '" + "', '".join(unknown_columns) + "'."
-        warnings.warn(message)
+        warnings.warn(message, stacklevel=2)
         columns = [
             column for column in COLUMN_NAMES if column in df
         ] + df.columns.difference(list(COLUMN_NAMES)).tolist()
