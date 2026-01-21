@@ -131,7 +131,7 @@ FLOAT_COLUMNS = [
 ] + LAST_FOUR_YEARS
 
 
-def get_etf_params(
+def make_etf_params(
     strategy: Strategy = "epg-longOnly",
     exchange: Literal[Exchange, "any"] | None = "any",
     asset_class: AssetClass | None = None,
@@ -144,7 +144,7 @@ def get_etf_params(
     isin: str | None = None,
 ) -> str:
     """
-    Build `etfParams` for ETF data request for `BASE_PARAMS` enrichment.
+    Make `etfParams` for ETF data request for `BASE_PARAMS` enrichment.
 
     Args
         strategy: Optional strategy query, see `STRATEGIES`. Strategies are
@@ -177,16 +177,18 @@ def get_etf_params(
         etf_params += f"&region={region}"
     if country is not None:
         if len(country) == 2 and country == country.upper():
-            py_country: pycountry.db.Country = pycountry.countries.get(alpha_2=country)
+            py_country: pycountry.db.Country | None = pycountry.countries.get(
+                alpha_2=country
+            )
             if py_country is None:
                 raise ValueError(f"Country alpha-2 code '{country}' not found.")
-        if len(country) != 2 or country != country.upper():
+        else:
             try:
                 matches = pycountry.countries.search_fuzzy(country)
             except LookupError as e:
                 raise ValueError(f"Country '{country}' not recognized.") from e
             try:
-                py_country = matches[0]  # type: ignore
+                py_country = matches[0]
             except IndexError as e:
                 raise ValueError(f"Country '{country}' not recognized.") from e
             country = py_country.alpha_2
@@ -204,7 +206,7 @@ def get_etf_params(
     return etf_params
 
 
-def get_raw_overview(
+def load_raw_overview(
     strategy: Strategy | None = None,
     exchange: Literal[Exchange, "any"] | None = "any",
     asset_class: AssetClass | None = None,
@@ -221,6 +223,8 @@ def get_raw_overview(
     currency: Currency = "EUR",
 ) -> list[dict[str, Any]]:
     """
+    Load raw ETF overview data for the given parameters.
+
     Args
         strategy: Optional strategy query, see `STRATEGIES`. Strategies are
             disjunctive. If `None` (default), merge requests for all strategies.
@@ -247,7 +251,7 @@ def get_raw_overview(
         currency: Currency to get data in, see `Currency`.
     """
     # If `strategy` is `None`, make requests for all strategies.
-    strategies = list(STRATEGIES) if strategy is None else [strategy]
+    strategies: list[Strategy] = list(STRATEGIES) if strategy is None else [strategy]
     rows: list[dict[str, Any]] = []
     with requests.Session() as session:
         session.headers["User-Agent"] = USER_AGENT
@@ -269,7 +273,7 @@ def get_raw_overview(
                     "country": local_country,
                     "universeType": universe,
                     "defaultCurrency": currency,
-                    "etfsParams": get_etf_params(
+                    "etfsParams": make_etf_params(
                         strategy_,
                         exchange,
                         asset_class,
@@ -285,6 +289,7 @@ def get_raw_overview(
             )
             assert_response_status_ok(response, "overview")
             strategy_rows = response.json()["data"]
+
             for row in strategy_rows:
                 for old_row in rows:
                     if row["isin"] == old_row["isin"]:
@@ -315,6 +320,8 @@ def load_overview(
     enrich: bool = False,
 ) -> pd.DataFrame:
     """
+    Load ETF overview data for the given parameters.
+
     Args
         strategy: Optional strategy query, see `STRATEGIES`. Strategies are
             disjunctive. If `None` (default), merge requests for all strategies.
@@ -349,7 +356,7 @@ def load_overview(
                 `region`: target region
                 `exchange`: all exchanges the asset is available at.
     """
-    rows = get_raw_overview(
+    rows = load_raw_overview(
         strategy,
         exchange,
         asset_class,
@@ -422,7 +429,7 @@ def load_overview(
     # Enrich existing columns.
     if "inception_date" in df:
         columns = df.columns.tolist()
-        df["age_in_days"] = (pd.Timestamp("now") - df["inception_date"]).dt.days  # type: ignore
+        df["age_in_days"] = (pd.Timestamp("now") - df["inception_date"]).dt.days
         df["age_in_years"] = df["age_in_days"] / 365
         columns.insert(columns.index("inception_date") + 1, "age_in_days")
         columns.insert(columns.index("age_in_days") + 1, "age_in_years")
@@ -449,9 +456,10 @@ def load_overview(
                     "language": language,
                     "universe": universe,
                 }
-                for row in get_raw_overview(**kwargs):
+                for row in load_raw_overview(**kwargs):  # ty: ignore[invalid-argument-type]
                     for index_ in df[df["isin"] == row["isin"]].index:
                         old_value = df.at[index_, enrichment_name]
+                        old_value = cast(str, old_value)
                         if old_value == "":
                             df.at[index_, enrichment_name] = value
                         elif value not in old_value:
