@@ -48,6 +48,7 @@ class RawChart(TypedDict):
     latestQuoteDate: str
     price: RawQuote
     performance: RawQuote
+    prevDaySeries: list[RawSeriesItem]
     series: list[RawSeriesItem]
     latestDate: str
     endOfDay: str
@@ -189,7 +190,7 @@ def compare_charts(
         Pandas DataFrame with dates as index and given ISINs as columns.
     """
     longest_chart = max(charts.values(), key=len)
-    charts_df = pd.DataFrame(index=longest_chart.index)
+    charts_df = pd.DataFrame(index=longest_chart.index)  # ty: ignore[unresolved-attribute]
     for isin, chart in charts.items():
         charts_df[isin] = chart[input_value]
 

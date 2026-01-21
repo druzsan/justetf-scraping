@@ -82,7 +82,7 @@ def test_parse_series() -> None:
     """
     Test parsing a series of raw data.
     """
-    raw_series = [
+    raw_series: list[justetf_scraping.charts.RawSeriesItem] = [
         {"date": "2026-01-18", "value": {"raw": 102, "localized": "102"}},
         {"date": "2026-01-19", "value": {"raw": 105, "localized": "105"}},
     ]
@@ -112,15 +112,15 @@ def test_load_chart_with_dividends(monkeypatch: pytest.MonkeyPatch) -> None:
     assert df.at[last_date, "quote"] == 105
     assert df.at[pd.to_datetime("2026-01-15"), "dividends"] == 1
     assert df.at[last_date, "cumulative_dividends"] == 3
-    assert df.at[last_date, "reinvested_dividends"] > 0
-    assert df.at[last_date, "quote_with_dividends"] > df.at[last_date, "quote"]
-    assert df.at[last_date, "relative_with_dividends"] > df.at[last_date, "relative"]
+    assert df.at[last_date, "reinvested_dividends"] > 0  # ty: ignore[unsupported-operator]
+    assert df.at[last_date, "quote_with_dividends"] > df.at[last_date, "quote"]  # ty: ignore[unsupported-operator]
+    assert df.at[last_date, "relative_with_dividends"] > df.at[last_date, "relative"]  # ty: ignore[unsupported-operator]
     assert (
-        df.at[last_date, "quote_with_reinvested_dividends"]
+        df.at[last_date, "quote_with_reinvested_dividends"]  # ty: ignore[unsupported-operator]
         > df.at[last_date, "quote_with_dividends"]
     )
     assert (
-        df.at[last_date, "relative_with_reinvested_dividends"]
+        df.at[last_date, "relative_with_reinvested_dividends"]  # ty: ignore[unsupported-operator]
         > df.at[last_date, "relative_with_dividends"]
     )
 
