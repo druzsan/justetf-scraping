@@ -2,8 +2,6 @@
 Common constants and functions used in package.
 """
 
-from typing import Dict, Optional
-
 import requests
 
 from .types import AssetClass, Exchange, Instrument, Region, Strategy
@@ -11,12 +9,12 @@ from .types import AssetClass, Exchange, Instrument, Region, Strategy
 # justETF seems to block default requests' user agent, so define a custom one
 USER_AGENT = "My User Agent 1.0"
 
-STRATEGIES: Dict[Strategy, str] = {
+STRATEGIES: dict[Strategy, str] = {
     "epg-longOnly": "Long-only",
     "epg-activeEtfs": "Active",
     "epg-shortAndLeveraged": "Short & Leveraged",
 }
-ASSET_CLASSES: Dict[AssetClass, str] = {
+ASSET_CLASSES: dict[AssetClass, str] = {
     "class-equity": "Equity",
     "class-bonds": "Bonds",
     "class-preciousMetals": "Precious Metals",
@@ -25,7 +23,7 @@ ASSET_CLASSES: Dict[AssetClass, str] = {
     "class-realEstate": "Real Estate",
     "class-moneyMarket": "Money Market",
 }
-REGIONS: Dict[Region, str] = {
+REGIONS: dict[Region, str] = {
     "Africa": "Africa",
     "Asia%2BPacific": "Asia & Pacific",
     "Eastern%2BEurope": "Eastern Europe",
@@ -35,7 +33,7 @@ REGIONS: Dict[Region, str] = {
     "North%2BAmerica": "North America",
     "World": "World",
 }
-EXCHANGES: Dict[Exchange, str] = {
+EXCHANGES: dict[Exchange, str] = {
     "MUND": "gettex",
     "XETR": "XETRA",
     "XLON": "London",
@@ -46,7 +44,7 @@ EXCHANGES: Dict[Exchange, str] = {
     "XAMS": "Euronext Amsterdam",
     "XBRU": "Euronext Brussels",
 }
-INSTRUMENTS: Dict[Instrument, str] = {
+INSTRUMENTS: dict[Instrument, str] = {
     "ETC": "ETC",
     "ETF": "ETF",
     "ETN": "ETN",
@@ -54,8 +52,7 @@ INSTRUMENTS: Dict[Instrument, str] = {
 
 
 def assert_response_status_ok(
-    response: requests.Response,
-    name: Optional[str] = None,
+    response: requests.Response, name: str | None = None
 ) -> None:
     """
     Check response status code, fail and save error page if not equal to 200.

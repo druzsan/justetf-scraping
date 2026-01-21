@@ -18,11 +18,11 @@ check: format lint typecheck
 
 .PHONY: format
 format: ## Format code
-	uv run ruff format --target-version py312 --exit-non-zero-on-format
+	uv run ruff format --target-version py310 --exit-non-zero-on-format
 
 .PHONY: lint
 lint: ## Lint code
-	uv run ruff check --fix --show-fixes --exit-non-zero-on-fix
+	uv run ruff check --target-version py310 --fix --show-fixes --exit-non-zero-on-fix
 
 .PHONY: typecheck
 typecheck: ## Check code types
