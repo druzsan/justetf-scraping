@@ -5,7 +5,7 @@ Parse ETF overview data from justETF (https://www.justetf.com/en/find-etf.html).
 import itertools
 import re
 import warnings
-from typing import Any, Dict, List, Literal, Optional, cast
+from typing import Any, Literal, cast
 
 import pandas as pd
 import pycountry
@@ -133,15 +133,15 @@ FLOAT_COLUMNS = [
 
 def get_etf_params(
     strategy: Strategy = "epg-longOnly",
-    exchange: Optional[Literal[Exchange, "any"]] = "any",
-    asset_class: Optional[AssetClass] = None,
-    region: Optional[Region] = None,
-    country: Optional[str] = None,
-    instrument: Optional[Instrument] = None,
-    provider: Optional[str] = None,
-    index_provider: Optional[str] = None,
-    index: Optional[str] = None,
-    isin: Optional[str] = None,
+    exchange: Literal[Exchange, "any"] | None = "any",
+    asset_class: AssetClass | None = None,
+    region: Region | None = None,
+    country: str | None = None,
+    instrument: Instrument | None = None,
+    provider: str | None = None,
+    index_provider: str | None = None,
+    index: str | None = None,
+    isin: str | None = None,
 ) -> str:
     """
     Build `etfParams` for ETF data request for `BASE_PARAMS` enrichment.
@@ -205,21 +205,21 @@ def get_etf_params(
 
 
 def get_raw_overview(
-    strategy: Optional[Strategy] = None,
-    exchange: Optional[Literal[Exchange, "any"]] = "any",
-    asset_class: Optional[AssetClass] = None,
-    region: Optional[Region] = None,
-    country: Optional[str] = None,
-    instrument: Optional[Instrument] = None,
-    provider: Optional[str] = None,
-    index_provider: Optional[str] = None,
-    index: Optional[str] = None,
-    isin: Optional[str] = None,
+    strategy: Strategy | None = None,
+    exchange: Literal[Exchange, "any"] | None = "any",
+    asset_class: AssetClass | None = None,
+    region: Region | None = None,
+    country: str | None = None,
+    instrument: Instrument | None = None,
+    provider: str | None = None,
+    index_provider: str | None = None,
+    index: str | None = None,
+    isin: str | None = None,
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
     currency: Currency = "EUR",
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Args
         strategy: Optional strategy query, see `STRATEGIES`. Strategies are
@@ -248,7 +248,7 @@ def get_raw_overview(
     """
     # If `strategy` is `None`, make requests for all strategies.
     strategies = list(STRATEGIES) if strategy is None else [strategy]
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     with requests.Session() as session:
         session.headers["User-Agent"] = USER_AGENT
         html_response = session.get(f"{BASE_URL}?search=ETFS")
@@ -298,16 +298,16 @@ def get_raw_overview(
 
 
 def load_overview(
-    strategy: Optional[Strategy] = None,
-    exchange: Optional[Literal[Exchange, "any"]] = "any",
-    asset_class: Optional[AssetClass] = None,
-    region: Optional[Region] = None,
-    country: Optional[str] = None,
-    instrument: Optional[Instrument] = None,
-    provider: Optional[str] = None,
-    index_provider: Optional[str] = None,
-    index: Optional[str] = None,
-    isin: Optional[str] = None,
+    strategy: Strategy | None = None,
+    exchange: Literal[Exchange, "any"] | None = "any",
+    asset_class: AssetClass | None = None,
+    region: Region | None = None,
+    country: str | None = None,
+    instrument: Instrument | None = None,
+    provider: str | None = None,
+    index_provider: str | None = None,
+    index: str | None = None,
+    isin: str | None = None,
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
@@ -366,7 +366,7 @@ def load_overview(
         currency,
     )
     # Rebuild rows to columns
-    data: Dict[str, list] = {key: [] for key in itertools.chain.from_iterable(rows)}
+    data: dict[str, list] = {key: [] for key in itertools.chain.from_iterable(rows)}
     for row in rows:
         for key, values in data.items():
             values.append(row.get(key))
