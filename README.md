@@ -1,32 +1,26 @@
 # 💹 justETF Scraping
 
-Scrape the [justETF](https://www.justetf.com) - Fork optimize for [LibreFolio](https://github.com/Alfystar/LibreFolio) code.
+Scrape the [justETF](https://www.justetf.com).
 
 ## 🛠️ Installation
 
 To use justETF scraping package in your project, install the actual version from GitHub:
 
 ```shell
-pip install git+https://github.com/Alfystar/justetf-scraping.git
-```
-
-If you are using pipenv:
-
-```shell
-pipenv install git+https://github.com/Alfystar/justetf-scraping.git
+pip install git+https://github.com/druzsan/justetf-scraping.git
 ```
 
 If you are going to play [notebooks](./notebooks) through, use the following installation:
 
 ```shell
-pip install justetf-scraping[all]@git+https://github.com/Alfystar/justetf-scraping.git
+pip install justetf-scraping[all]@git+https://github.com/druzsan/justetf-scraping.git
 ```
 
 ## 🚀 Usage
 
 ### 📋 Scrape the [justETF Screener](https://www.justetf.com/en/find-etf.html)
 
-Load overviews for all available (over 3400 at the moment) ETFs (requires a request for all ETF type: long-only, active, short & leveraged):
+Load overviews for all available (over 3400 at the moment) ETFs. By default, it loads long-only, active, short & leveraged ETFs (3 requests), but without further enrichments:
 
 ```python
 import justetf_scraping
@@ -357,19 +351,19 @@ df
 <p>3486 rows × 42 columns</p>
 </div>
 
-Further enrich the data with additional information (asset class, region, exchanges and instrument, it requires further requests):
+To reduce the number of requests, one particular ETF type can be loaded, e.g. long-only ETFs:
+
+```python
+df = justetf_scraping.load_overview(streategy="epg-longOnly")
+```
+
+To further enrich the data with additional information (asset class, region, exchanges and instrument, multiple requests for each combination required):
 
 ```python
 df = justetf_scraping.load_overview(enrich=True)
 ```
 
-Load long-only ETFs (only requires one single request):
-
-```python
-df = justetf_scraping.load_overview(strategy="epg-longOnly")
-```
-
-Load MSCI World ETFs:
+Load ETFs for a single index, e.g. MSCI World:
 
 ```python
 df = justetf_scraping.load_overview(strategy="epg-longOnly", index="MSCI World")
@@ -377,28 +371,11 @@ df = justetf_scraping.load_overview(strategy="epg-longOnly", index="MSCI World")
 
 ### 📈 Scrape ETF Chart Data from justETF ([e.g.](https://www.justetf.com/en/etf-profile.html?isin=IE00B0M62Q58#chart))
 
-#### Get raw chart data with `query_chart`
-
-Get the raw JSON response from justETF API:
-
-```python
-data = justetf_scraping.query_chart("IE00B0M62Q58")
-# Returns dict with: latestQuote, latestQuoteDate, price, performance, series, etc.
-```
-
-#### Load and process chart data with `load_chart`
-
 Load the whole history of a chosen ETF by its ISIN:
 
 ```python
 df = justetf_scraping.load_chart("IE00B0M62Q58")
 df
-```
-
-You can also include the current day's value in the response (useful for up-to-date data):
-
-```python
-df = justetf_scraping.load_chart("IE00B0M62Q58", addCurrentValue=True)
 ```
 
 <table>
@@ -565,16 +542,23 @@ df = justetf_scraping.load_chart("IE00B0M62Q58", addCurrentValue=True)
 </table>
 <p>7078 rows × 9 columns</p>
 
-Compare
+For accumulating ETFs, all dividends columns are zeros and all columns with dividends are equal to the ones without.
+
+If you want to include quote from not yet closed day (today):
+
+```python
+df = justetf_scraping.load_chart("IE00B0M62Q58", unclosed=True)
+```
+
+Compare multiple charts. It will take the shortest time period and compare gain as percentage including payed out but not reinvested dividends:
 
 ```python
 df = justetf_scraping.compare_charts(
     {
         "IE00B0M62Q58": justetf_scraping.load_chart("IE00B0M62Q58"),
         "IE00B0M63177": justetf_scraping.load_chart("IE00B0M63177"),
-        },
-    input_value="quote_with_dividends"
-    )
+    },
+)
 df
 ```
 
@@ -651,7 +635,7 @@ df
 </table>
 <p>7057 rows × 2 columns</p>
 
-### 🔍 Scrape ETF Profile Data (NEW!)
+### 🔍 Scrape ETF Profile Data
 
 Get comprehensive ETF profile data including description, holdings allocation by country and sector, and real-time quotes from gettex.
 
@@ -730,29 +714,37 @@ For further exploration examples, see [Jupyter Notebooks](notebooks/)
 
 ## ⚒️ Development Setup
 
-To setup locally cloned project, first install [Poetry](https://python-poetry.org/):
+Prerequisites:
+- Python 3.10 or later
+- [uv](https://docs.astral.sh/uv/) for dependency management
+- make (optional) for shortcut commands
+- [direnv](https://direnv.net/) (optional) to automate enviroment setup
+- [asdf](https://asdf-vm.com/) (optional) to manage direnv, Python and uv versions. For correct direnv setup, use [pre 0.16](https://asdf-vm.com/guide/getting-started-legacy.html) version.
 
+Setup project using asdf, direnv and make
 ```shell
-pip install poetry
+asdf add plugin python
+asdf add plugin uv
+asdf add plugin direnv
+asdf direnv setup --shell bash --version latest
+# Navigate to project folder
+asdf install
+direnv allow
+uv sync --all-extras
 ```
 
-In the local project folder, install all dependencies and extras:
+Setup project using pip (Python should be preinstalled):
 
 ```shell
-poetry install --all-extras
+pip install uv
+# Navigate to project folder
+uv sync --all-extras
+uv run pre-commit install
+# To run any environment-related commands, use `uv run ...`, e.g.:
+uv run notebook
 ```
 
-Activate local Poetry environment:
-
-```shell
-poetry shell
-```
-
-Setup [pre-commit hooks](https://pre-commit.com/):
-
-```shell
-pre-commit install
-```
+Optionally, use make targets for predefined commands, e.g. `make sync` to install all dependencies. Run `make help` to see all commands.
 
 ## Similar Projects
 
