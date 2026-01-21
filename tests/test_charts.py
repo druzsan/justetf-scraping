@@ -1,3 +1,7 @@
+"""
+Tests for `justetf_scraping.charts` module.
+"""
+
 import pandas as pd
 import pytest
 
