@@ -20,8 +20,8 @@ repos:
         language: system
         types: [python]
       - id: pytest
-        name: backend tests
-        entry: uv --directory backend run pytest tests/unit
+        name: pytest
+        entry: uv run pytest
         language: system
         pass_filenames: false
         stages: [pre-push]
