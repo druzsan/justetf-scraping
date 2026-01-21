@@ -17,7 +17,7 @@ CHART_COLUMNS = {
 }
 
 
-def load_mocked_raw_chart(
+def _load_mocked_raw_chart(
     isin: str, currency: justetf_scraping.types.Currency = "EUR"
 ) -> justetf_scraping.charts.RawChart:
     """
@@ -95,7 +95,9 @@ def test_load_chart_with_dividends(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     Test loading a mocked chart with dividends.
     """
-    monkeypatch.setattr("justetf_scraping.charts.load_raw_chart", load_mocked_raw_chart)
+    monkeypatch.setattr(
+        "justetf_scraping.charts.load_raw_chart", _load_mocked_raw_chart
+    )
 
     df = justetf_scraping.load_chart("with_dividends")
 
@@ -123,7 +125,9 @@ def test_load_chart_without_dividends(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     Test loading a mocked chart without dividends.
     """
-    monkeypatch.setattr("justetf_scraping.charts.load_raw_chart", load_mocked_raw_chart)
+    monkeypatch.setattr(
+        "justetf_scraping.charts.load_raw_chart", _load_mocked_raw_chart
+    )
 
     df = justetf_scraping.load_chart("without_dividends")
 
@@ -144,7 +148,9 @@ def test_load_chart_with_unclosed(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     Test loading a mocked chart with unclosed day.
     """
-    monkeypatch.setattr("justetf_scraping.charts.load_raw_chart", load_mocked_raw_chart)
+    monkeypatch.setattr(
+        "justetf_scraping.charts.load_raw_chart", _load_mocked_raw_chart
+    )
 
     df = justetf_scraping.load_chart("with_dividends", unclosed=True)
 
