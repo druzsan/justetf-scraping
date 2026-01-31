@@ -40,7 +40,6 @@ Exchange = Literal[
 Instrument = Literal["ETC", "ETF", "ETN"]
 
 
-# Raw response types
 class RawValue(TypedDict):
     """
     A raw value.
@@ -48,6 +47,31 @@ class RawValue(TypedDict):
 
     raw: float
     localized: str
+
+
+class RawSeriesItem(TypedDict):
+    """
+    Raw series item.
+    """
+
+    date: str
+    value: RawValue
+
+
+class RawChart(TypedDict):
+    """
+    Raw chart data.
+    """
+
+    latestQuote: RawValue
+    latestQuoteDate: str
+    price: RawValue
+    performance: RawValue
+    prevDaySeries: list[RawSeriesItem]
+    series: list[RawSeriesItem]
+    latestDate: str
+    endOfDay: str
+    features: dict[str, list[RawSeriesItem]]
 
 
 # "I" for initial quote, "D" for down, "U" for up.

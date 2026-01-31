@@ -3,13 +3,13 @@ Scrape and compare ETF chart data from justETF
 (e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983#chart).
 """
 
-from typing import Literal, TypedDict
+from typing import Literal
 
 import pandas as pd
 import requests
 
 from .helpers import USER_AGENT, assert_response_status_ok
-from .types import Currency
+from .types import Currency, RawChart, RawSeriesItem
 
 BASE_URL = "https://www.justetf.com/api/etfs/{isin}/performance-chart"
 BASE_PARAMS = {
@@ -19,40 +19,6 @@ BASE_PARAMS = {
     "includeDividends": "false",
     "features": "DIVIDENDS",
 }
-
-
-class RawQuote(TypedDict):
-    """
-    Raw quote value.
-    """
-
-    raw: float
-    localized: str
-
-
-class RawSeriesItem(TypedDict):
-    """
-    Raw series item.
-    """
-
-    date: str
-    value: RawQuote
-
-
-class RawChart(TypedDict):
-    """
-    Raw chart data.
-    """
-
-    latestQuote: RawQuote
-    latestQuoteDate: str
-    price: RawQuote
-    performance: RawQuote
-    prevDaySeries: list[RawSeriesItem]
-    series: list[RawSeriesItem]
-    latestDate: str
-    endOfDay: str
-    features: dict[str, list[RawSeriesItem]]
 
 
 def parse_series(
