@@ -19,10 +19,12 @@ dependencies = [
 
 [project.optional-dependencies]
 exploration = [
+    "matplotlib",
     "notebook",
     "seaborn",
 ]
 all = [
+    "matplotlib",
     "notebook",
     "seaborn",
 ]
