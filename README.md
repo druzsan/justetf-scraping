@@ -354,7 +354,7 @@ df
 To reduce the number of requests, one particular ETF type can be loaded, e.g. long-only ETFs:
 
 ```python
-df = justetf_scraping.load_overview(streategy="epg-longOnly")
+df = justetf_scraping.load_overview(strategy="epg-longOnly")
 ```
 
 To further enrich the data with additional information (asset class, region, exchanges and instrument, multiple requests for each combination required):
@@ -635,6 +635,34 @@ df
 </table>
 <p>7057 rows × 2 columns</p>
 
+### 💗 Scrape Live Quote
+
+Load the last quote of a chosen ETF by its ISIN:
+
+```python
+quote = justetf_scraping.load_live_quote("IE00B0M62Q58")
+quote
+```
+
+```
+Quote(isin='IE00B0M62Q58', timestamp=datetime.datetime(2026, 1, 30, 21, 58, 36, 538000, tzinfo=datetime.timezone.utc), exchange='gettex', currency='EUR', trend=None, ask=81.22, bid=81.15, mid=81.19, last=81.01, spread=0.07, spread_relative=0.0009, spread_percentage=0.09, day_to_day=0.18, day_to_day_relative=0.0022, day_to_day_percentage=0.22)
+```
+
+Currently, only Gettex exchange and Euro currency are supported.
+
+Subscribe to live quote of a chosen ETF by its ISIN:
+
+```python
+for quote in justetf_scraping.iterate_live_quote("IE00B0M62Q58"):
+    print(quote)  # Add your processing here
+```
+
+```
+Quote(isin='IE00B0M62Q58', timestamp=datetime.datetime(2026, 1, 30, 21, 58, 36, 538000, tzinfo=datetime.timezone.utc), exchange='gettex', currency='EUR', trend=None, ask=81.22, bid=81.15, mid=81.19, last=81.01, spread=0.07, spread_relative=0.0009, spread_percentage=0.09, day_to_day=0.18, day_to_day_relative=0.0022, day_to_day_percentage=0.22)
+```
+
+So you can react to quote change. Again, only Gettex exchange and Euro currency are supported. The update frequency cannot be controlled. No updates besides the initial quote will be received outside of trade hours.
+
 ### 🔍 Scrape ETF Profile Data
 
 Get comprehensive ETF profile data including description, holdings allocation by country and sector, and real-time quotes from gettex.
@@ -688,25 +716,6 @@ The `get_etf_overview` function returns a dictionary with:
 | `sectors`             | list  | Full sector allocation           |
 | `top_holdings`        | list  | Top 10 holdings with ISINs       |
 | `gettex`              | dict  | Real-time quote data             |
-
-#### Get real-time gettex quote only with `get_gettex_quote`
-
-```python
-quote = justetf_scraping.get_gettex_quote("IE00B3RBWM25")
-
-print(f"Bid: {quote['bid']} EUR")
-print(f"Ask: {quote['ask']} EUR")
-print(f"Spread: {quote['spread_percent']}%")
-print(f"Day Change: {quote['day_change_percent']}%")
-print(f"Timestamp: {quote['timestamp']}")  # datetime object
-```
-
-#### Get raw gettex data with `get_gettex_quote_raw`
-
-```python
-raw_data = justetf_scraping.get_gettex_quote_raw("IE00B3RBWM25")
-# Returns the raw JSON response from the WebSocket
-```
 
 For a complete example, see [test_scrape.py](notebooks/test_scrape.py)
 

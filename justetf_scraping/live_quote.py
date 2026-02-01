@@ -34,8 +34,9 @@ def iterate_raw_live_quote(isin: str) -> Iterator[RawQuote]:
             headers={"User-Agent": USER_AGENT, "Origin": "https://www.justetf.com"},
         )
     ) as ws:
-        data = ws.recv()
-        yield json.loads(data)
+        while True:
+            data = ws.recv()
+            yield json.loads(data)
 
 
 def iterate_live_quote(isin: str) -> Iterator[Quote]:
