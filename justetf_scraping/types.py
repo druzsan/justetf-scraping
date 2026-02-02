@@ -74,8 +74,8 @@ class RawChart(TypedDict):
     features: dict[str, list[RawSeriesItem]]
 
 
-# "I" for initial quote, "D" for down, "U" for up.
-RawQuoteTrend = Literal["I", "D", "U"]
+# "I" for initial quote, "D" for down, "U" for up, "N" for no change.
+RawQuoteTrend = Literal["I", "D", "U", "N"]
 
 
 class RawQuote(TypedDict):
@@ -112,7 +112,7 @@ def parse_quote_trend(raw_quote_trend: RawQuoteTrend) -> QuoteTrend | None:
         return "down"
     elif raw_quote_trend == "U":
         return "up"
-    elif raw_quote_trend != "I":
+    elif raw_quote_trend not in ["I", "N"]:
         warnings.warn(f"Invalid raw quote trend: {raw_quote_trend}", stacklevel=2)
     return None
 
