@@ -635,6 +635,8 @@ df
 
 ### 💗 Scrape Live Quote
 
+> Currently, only Gettex exchange and Euro currency are supported by live quote.
+
 Load the last quote of a chosen ETF by its ISIN:
 
 ```python
@@ -645,8 +647,6 @@ quote
 ```
 Quote(isin='IE00B0M62Q58', timestamp=datetime.datetime(2026, 2, 2, 15, 43, 30, 201000, tzinfo=datetime.timezone.utc), exchange='gettex', currency='EUR', trend=None, ask=82.0, bid=81.98, mid=81.99, last=81.19, spread=0.02, spread_relative=0.0002, spread_percentage=0.02, day_to_day=0.8, day_to_day_relative=0.0099, day_to_day_percentage=0.99)
 ```
-
-Currently, only Gettex exchange and Euro currency are supported.
 
 Subscribe to live quote of a chosen ETF by its ISIN:
 
@@ -662,7 +662,7 @@ Quote(isin='IE00B0M62Q58', timestamp=datetime.datetime(2026, 2, 2, 15, 43, 34, 6
 ...
 ```
 
-So you can react to quote change. Again, only Gettex exchange and Euro currency are supported. The update frequency cannot be controlled. No updates besides the initial quote will be received outside of trade hours.
+So you can react to quote change. The update frequency cannot be controlled. No updates besides the initial quote will be received outside of trade hours.
 
 ### 🔍 Scrape ETF Profile Data
 
@@ -740,7 +740,9 @@ asdf direnv setup --shell bash --version latest
 # Navigate to project folder
 asdf install
 direnv allow
-uv sync --all-extras
+make init
+# To see more make targets, run:
+make help
 ```
 
 Setup project using pip (Python should be preinstalled):
@@ -763,6 +765,4 @@ Optionally, use make targets for predefined commands, e.g. `make sync` to instal
 
 ## Thanks
 
-This project was inspired by
-[this](https://stackoverflow.com/questions/64813023/scraping-dynamic-datatable-of-many-pages-but-same-url)
-Stack Overflow question.
+This project was inspired by [this](https://stackoverflow.com/questions/64813023/scraping-dynamic-datatable-of-many-pages-but-same-url) Stack Overflow question.
