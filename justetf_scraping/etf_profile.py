@@ -6,17 +6,14 @@ This module provides functions to:
 2. Get ETF overview including description, basic data, countries, and sectors
 """
 
-import json
 import re
-from datetime import datetime
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import List, Optional, TypedDict
 from xml.etree import ElementTree
 
 import requests
 from bs4 import BeautifulSoup
-from websocket import create_connection
 
-from .helpers import USER_AGENT
+from .types import Quote
 
 
 # Type definitions
@@ -37,29 +34,6 @@ class HoldingItem(TypedDict):
     name: str
     percentage: float
     isin: Optional[str]
-
-
-class GettexQuote(TypedDict):
-    """
-    Gettex quote.
-    """
-
-    isin: str
-    timestamp: datetime
-    trend: str
-    ask: float
-    bid: float
-    mid: float
-    last: float
-    currency: str
-    day_change_decimal: float
-    day_change_percent: float
-    day_change_amount: float
-    spread_amount: float
-    spread_decimal: float
-    spread_percent: float
-    stock_exchange: str
-    quote_type: str
 
 
 class EtfOverview(TypedDict):
@@ -90,12 +64,11 @@ class EtfOverview(TypedDict):
     countries: List[AllocationItem]
     sectors: List[AllocationItem]
     holdings_date: Optional[str]
-    gettex: Optional[GettexQuote]
+    gettex: Optional[Quote]
 
 
 # Constants
 BASE_URL = "https://www.justetf.com/en/etf-profile.html"
-WEBSOCKET_URL = "wss://api.mobile.stock-data-subscriptions.justetf.com"
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
@@ -133,89 +106,6 @@ def _parse_date(value: str) -> Optional[str]:
     # Try to extract date pattern
     value = value.replace("As of ", "").strip()
     return value
-
-
-def get_gettex_quote(
-    isin: str, currency: str = "EUR", language: str = "en"
-) -> Optional[GettexQuote]:
-    """
-    Get real-time quote data from gettex via WebSocket.
-
-    Args:
-        isin: The ISIN of the ETF
-        currency: Currency for the quote (default: EUR)
-        language: Language code (default: en)
-
-    Returns:
-        GettexQuote dictionary with parsed numeric values, or None if failed
-    """
-    url = f"{WEBSOCKET_URL}?subscription=trend&parameters=isins:{isin}/currency:{currency}/language:{language}"
-    ws_headers = {"User-Agent": USER_AGENT, "Origin": "https://www.justetf.com"}
-
-    try:
-        ws = create_connection(url, header=ws_headers, timeout=10)
-        result = ws.recv()
-        ws.close()
-
-        if not result:
-            return None
-
-        data = json.loads(result)
-
-        # Parse and return cleaned data
-        return GettexQuote(
-            isin=data.get("isin", isin),
-            timestamp=datetime.fromisoformat(data["timestamp"].replace("Z", "+00:00"))
-            if data.get("timestamp")
-            else None,
-            trend=data.get("trend", ""),
-            ask=data.get("ask", {}).get("raw"),
-            bid=data.get("bid", {}).get("raw"),
-            mid=data.get("mid", {}).get("raw"),
-            last=data.get("last", {}).get("raw"),
-            currency=data.get("currency", currency),
-            day_change_decimal=data.get("dtdDec", {}).get("raw"),
-            day_change_percent=data.get("dtdPrc", {}).get("raw"),
-            day_change_amount=data.get("dtdAmt", {}).get("raw"),
-            spread_amount=data.get("spreadAmt", {}).get("raw"),
-            spread_decimal=data.get("spreadDec", {}).get("raw"),
-            spread_percent=data.get("spreadPrc", {}).get("raw"),
-            stock_exchange=data.get("stockExchange", "gettex"),
-            quote_type=data.get("quoteType", ""),
-        )
-    except Exception as e:
-        print(f"WebSocket error for {isin}: {e}")
-        return None
-
-
-def get_gettex_quote_raw(
-    isin: str, currency: str = "EUR", language: str = "en"
-) -> Optional[Dict[str, Any]]:
-    """
-    Get raw real-time quote data from gettex via WebSocket.
-
-    Args:
-        isin: The ISIN of the ETF
-        currency: Currency for the quote (default: EUR)
-        language: Language code (default: en)
-
-    Returns:
-        Raw dictionary from WebSocket response, or None if failed
-    """
-    url = f"{WEBSOCKET_URL}?subscription=trend&parameters=isins:{isin}/currency:{currency}/language:{language}"
-    ws_headers = {"User-Agent": USER_AGENT, "Origin": "https://www.justetf.com"}
-
-    try:
-        ws = create_connection(url, header=ws_headers, timeout=10)
-        result = ws.recv()
-        ws.close()
-
-        if result:
-            return json.loads(result)
-        return None
-    except Exception as e:
-        print(f"WebSocket error for {isin}: {e}")
-        return None
 
 
 def _fetch_ajax_data(
