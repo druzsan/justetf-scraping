@@ -151,7 +151,7 @@ def _parse_allocation_from_ajax(
 
     Args:
         xml_response: XML response from AJAX call
-        table_id: ID of the table element (e.g., 'id47')
+        table_id: ID of the table element (e.g., 'id47', or '*' to include all table elements)
         name_testid: data-testid for name element
         pct_testid: data-testid for percentage element
 
@@ -164,7 +164,7 @@ def _parse_allocation_from_ajax(
         # Parse XML and extract CDATA content for the table
         root = ElementTree.fromstring(xml_response)
         for component in root.findall(".//component"):
-            if component.get("id") == table_id:
+            if table_id in [component.get("id"), "*"]:
                 html_content = component.text
                 if html_content:
                     soup = BeautifulSoup(html_content, "html.parser")
@@ -179,7 +179,8 @@ def _parse_allocation_from_ajax(
                                 allocations.append(
                                     AllocationItem(name=name, percentage=pct)
                                 )
-                break
+                if table_id != "*":
+                    break
     except Exception as e:
         print(f"Error parsing allocation data: {e}")
 
@@ -295,7 +296,7 @@ def get_etf_overview(
         if countries_xml:
             countries = _parse_allocation_from_ajax(
                 countries_xml,
-                "id47",
+                "id46",
                 "tl_etf-holdings_countries_value_name",
                 "tl_etf-holdings_countries_value_percentage",
             )
@@ -323,7 +324,7 @@ def get_etf_overview(
         if sectors_xml:
             sectors = _parse_allocation_from_ajax(
                 sectors_xml,
-                "id48",
+                "id47",
                 "tl_etf-holdings_sectors_value_name",
                 "tl_etf-holdings_sectors_value_percentage",
             )
