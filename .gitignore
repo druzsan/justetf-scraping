@@ -16,6 +16,8 @@
 
 # Environment
 .venv/
+.idea/
+.playwright-mcp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
