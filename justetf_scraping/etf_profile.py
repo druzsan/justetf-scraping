@@ -13,6 +13,7 @@ from xml.etree import ElementTree
 import requests
 from bs4 import BeautifulSoup
 
+from .live_quote import load_live_quote
 from .types import Quote
 
 
@@ -144,14 +145,14 @@ def _fetch_ajax_data(
 
 
 def _parse_allocation_from_ajax(
-    xml_response: str, table_id: str, name_testid: str, pct_testid: str
+    xml_response: str, table_testid: str, name_testid: str, pct_testid: str
 ) -> List[AllocationItem]:
     """
     Parse allocation data (countries/sectors) from AJAX XML response.
 
     Args:
         xml_response: XML response from AJAX call
-        table_id: ID of the table element (e.g., 'id47')
+        table_testid: data-testid of the table element (e.g., 'etf-holdings_countries_table')
         name_testid: data-testid for name element
         pct_testid: data-testid for percentage element
 
@@ -164,22 +165,25 @@ def _parse_allocation_from_ajax(
         # Parse XML and extract CDATA content for the table
         root = ElementTree.fromstring(xml_response)
         for component in root.findall(".//component"):
-            if component.get("id") == table_id:
-                html_content = component.text
-                if html_content:
-                    soup = BeautifulSoup(html_content, "html.parser")
-                    rows = soup.find_all("tr", attrs={"data-testid": True})
-                    for row in rows:
-                        name_elem = row.find("td", attrs={"data-testid": name_testid})
-                        pct_elem = row.find("span", attrs={"data-testid": pct_testid})
-                        if name_elem and pct_elem:
-                            name = name_elem.get_text(strip=True)
-                            pct = _parse_percentage(pct_elem.get_text(strip=True))
-                            if name and pct is not None:
-                                allocations.append(
-                                    AllocationItem(name=name, percentage=pct)
-                                )
-                break
+            html_content = component.text
+            if not html_content:
+                continue
+            # Match on stable data-testid instead of dynamic Wicket element ID
+            if f'data-testid="{table_testid}"' not in html_content:
+                continue
+            soup = BeautifulSoup(html_content, "html.parser")
+            rows = soup.find_all("tr", attrs={"data-testid": True})
+            for row in rows:
+                name_elem = row.find("td", attrs={"data-testid": name_testid})
+                pct_elem = row.find("span", attrs={"data-testid": pct_testid})
+                if name_elem and pct_elem:
+                    name = name_elem.get_text(strip=True)
+                    pct = _parse_percentage(pct_elem.get_text(strip=True))
+                    if name and pct is not None:
+                        allocations.append(
+                            AllocationItem(name=name, percentage=pct)
+                        )
+            break
     except Exception as e:
         print(f"Error parsing allocation data: {e}")
 
@@ -295,7 +299,7 @@ def get_etf_overview(
         if countries_xml:
             countries = _parse_allocation_from_ajax(
                 countries_xml,
-                "id47",
+                "etf-holdings_countries_table",
                 "tl_etf-holdings_countries_value_name",
                 "tl_etf-holdings_countries_value_percentage",
             )
@@ -323,7 +327,7 @@ def get_etf_overview(
         if sectors_xml:
             sectors = _parse_allocation_from_ajax(
                 sectors_xml,
-                "id48",
+                "etf-holdings_sectors_table",
                 "tl_etf-holdings_sectors_value_name",
                 "tl_etf-holdings_sectors_value_percentage",
             )
@@ -353,7 +357,7 @@ def get_etf_overview(
     # Get gettex quote
     gettex = None
     if include_gettex:
-        gettex = get_gettex_quote(isin)
+        gettex = load_live_quote(isin)
 
     # Build result
     return EtfOverview(
