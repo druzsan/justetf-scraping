@@ -36,7 +36,9 @@ def test_include_gettex_uses_load_live_quote() -> None:
 
     with (
         patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls,
-        patch("justetf_scraping.etf_profile.load_live_quote", return_value=mock_quote) as mock_llq,
+        patch(
+            "justetf_scraping.etf_profile.load_live_quote", return_value=mock_quote
+        ) as mock_llq,
     ):
         mock_session = mock_session_cls.return_value
         # Return a minimal valid HTML page
@@ -44,7 +46,9 @@ def test_include_gettex_uses_load_live_quote() -> None:
         mock_response.status_code = 200
         mock_response.text = "<html><head><title>Test ETF | WKN | IE00TEST</title></head><body></body></html>"
 
-        result = get_etf_overview("IE00TEST", include_gettex=True, expand_allocations=False)
+        result = get_etf_overview(
+            "IE00TEST", include_gettex=True, expand_allocations=False
+        )
 
         mock_llq.assert_called_once_with("IE00TEST")
         assert result["gettex"] is mock_quote
@@ -61,7 +65,9 @@ def test_include_gettex_false_skips_quote() -> None:
         mock_response.status_code = 200
         mock_response.text = "<html><head><title>Test ETF | WKN | IE00TEST</title></head><body></body></html>"
 
-        result = get_etf_overview("IE00TEST", include_gettex=False, expand_allocations=False)
+        result = get_etf_overview(
+            "IE00TEST", include_gettex=False, expand_allocations=False
+        )
 
         mock_llq.assert_not_called()
         assert result["gettex"] is None

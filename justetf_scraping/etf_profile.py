@@ -180,9 +180,7 @@ def _parse_allocation_from_ajax(
                     name = name_elem.get_text(strip=True)
                     pct = _parse_percentage(pct_elem.get_text(strip=True))
                     if name and pct is not None:
-                        allocations.append(
-                            AllocationItem(name=name, percentage=pct)
-                        )
+                        allocations.append(AllocationItem(name=name, percentage=pct))
             break
     except Exception as e:
         print(f"Error parsing allocation data: {e}")
