@@ -9,7 +9,7 @@ import pytest
 import justetf_scraping.live_quote
 import justetf_scraping.types
 
-INITIAL_QUOTE = {
+INITIAL_QUOTE: justetf_scraping.types.RawQuote = {
     "isin": "test",
     "timestamp": "2026-01-30T00:00:00.000Z",
     "trend": "I",
@@ -27,7 +27,7 @@ INITIAL_QUOTE = {
     "stockExchange": "gettex",
     "quoteType": "R",
 }
-DOWN_QUOTE = {
+DOWN_QUOTE: justetf_scraping.types.RawQuote = {
     "isin": "test",
     "timestamp": "2026-01-30T00:00:00.020Z",
     "trend": "D",
@@ -45,7 +45,7 @@ DOWN_QUOTE = {
     "stockExchange": "gettex",
     "quoteType": "R",
 }
-UP_QUOTE = {
+UP_QUOTE: justetf_scraping.types.RawQuote = {
     "isin": "test",
     "timestamp": "2026-01-30T00:00:00.010Z",
     "trend": "U",
