@@ -118,15 +118,16 @@ def load_chart(
     df["cumulative_dividends"] = df["dividends"].cumsum()
     df["quote_with_dividends"] = df["quote"] + df["cumulative_dividends"]
     df["relative_with_dividends"] = relative(df["quote_with_dividends"])
-    df["reinvested_dividends"] = 0
+    reinvested_shares = pd.Series(1.0, index=df.index)
     for index, row in dividends_df.iterrows():
-        df["reinvested_dividends"] += (
-            df["quote"] * row["dividends"] / df.at[index, "quote"]
-        ).mask(df.index < index, 0)
-    df["quote_with_reinvested_dividends"] = df["quote"] + df["reinvested_dividends"]
+        reinvested_shares.loc[reinvested_shares.index >= index] += (
+            reinvested_shares[index] * row["dividends"] / df.at[index, "quote"]  # ty: ignore[invalid-argument-type]
+        )
+    df["quote_with_reinvested_dividends"] = df["quote"] * reinvested_shares
     df["relative_with_reinvested_dividends"] = relative(
         df["quote_with_reinvested_dividends"]
     )
+    df["reinvested_dividends"] = df["quote_with_reinvested_dividends"] - df["quote"]
 
     df.index.name = "date"
     return df

@@ -40,6 +40,9 @@ dev = [
     "types-requests>=2.32.4.20260107",
 ]
 
+[tool.uv]
+exclude-newer = "3 days"
+
 [tool.ruff.lint]
 # see https://docs.astral.sh/ruff/rules/ for more
 extend-select = ["A", "ANN", "B", "D1", "I", "N"]
