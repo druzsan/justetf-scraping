@@ -18,6 +18,7 @@
 .venv/
 .idea/
 .playwright-mcp
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
