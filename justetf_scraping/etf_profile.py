@@ -37,6 +37,22 @@ class HoldingItem(TypedDict):
     isin: Optional[str]
 
 
+class ListingItem(TypedDict):
+    """
+    Listing item.
+    """
+
+    exchange_code: str
+    exchange_name: str
+    currency: str
+    ticker: Optional[str]
+    bloomberg_code: Optional[str]
+    bloomberg_inav: Optional[str]
+    reuters_code: Optional[str]
+    reuters_inav: Optional[str]
+    market_maker: Optional[str]
+
+
 class EtfOverview(TypedDict):
     """
     ETF overview.
@@ -66,6 +82,7 @@ class EtfOverview(TypedDict):
     sectors: List[AllocationItem]
     holdings_date: Optional[str]
     gettex: Optional[Quote]
+    listings: List[ListingItem]
 
 
 # Constants
@@ -205,6 +222,13 @@ def _parse_allocation_from_soup(
             if name and pct is not None:
                 allocations.append(AllocationItem(name=name, percentage=pct))
     return allocations
+
+
+def _parse_cell_value(value: str) -> Optional[str]:
+    value = value.strip()
+    if value in ["-", "N/A", ""]:
+        return None
+    return value
 
 
 def get_etf_overview(
@@ -357,6 +381,45 @@ def get_etf_overview(
     if include_gettex:
         gettex = load_live_quote(isin)
 
+    # Get the listings
+    listings: List[ListingItem] = []
+    listings_table = soup.find(
+        "tbody", attrs={"data-testid": "etf-trade-data-panel_table-body"}
+    )
+    if listings_table:
+        listing_rows = listings_table.find_all("tr", attrs={"data-testid": True})
+        for row in listing_rows:
+            exchange_code = row.get("data-testid", "").replace("etf-trade-data-panel_row-", "")
+            cells = row.find_all("td")
+            if len(cells) >= 6:
+                exchange_name = _parse_cell_value(cells[0].get_text(strip=True))
+                currency = _parse_cell_value(cells[1].get_text(strip=True))
+                ticker = _parse_cell_value(cells[2].get_text(strip=True))
+                market_maker = _parse_cell_value(cells[5].get_text(strip=True))
+
+                bloomberg_cells = cells[3].find_all("span")
+                reuters_cells = cells[4].find_all("span")
+
+                bloomberg_code = _parse_cell_value(bloomberg_cells[0].get_text(strip=True)) if bloomberg_cells else None
+                bloomberg_inav = _parse_cell_value(bloomberg_cells[1].get_text(strip=True)) if bloomberg_cells and len(bloomberg_cells) > 1 else None
+
+                reuters_code = _parse_cell_value(reuters_cells[0].get_text(strip=True)) if reuters_cells else None
+                reuters_inav = _parse_cell_value(reuters_cells[1].get_text(strip=True)) if reuters_cells and len(reuters_cells) > 1 else None
+
+                listings.append(
+                    ListingItem(
+                        exchange_code=exchange_code,
+                        exchange_name=exchange_name,
+                        currency=currency,
+                        ticker=ticker,
+                        bloomberg_code=bloomberg_code,
+                        bloomberg_inav=bloomberg_inav,
+                        reuters_code=reuters_code,
+                        reuters_inav=reuters_inav,
+                        market_maker=market_maker,
+                    )
+                )
+
     # Build result
     return EtfOverview(
         isin=isin,
@@ -384,6 +447,7 @@ def get_etf_overview(
         sectors=sectors,
         holdings_date=holdings_date,
         gettex=gettex,
+        listings=listings,
     )
 
 
