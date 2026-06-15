@@ -196,3 +196,76 @@ def test_parse_ajax_invalid_xml() -> None:
         "tl_etf-holdings_countries_value_percentage",
     )
     assert result == []
+
+
+# --- Bug 3: AJAX called even when no "load more" button exists ---
+
+WICKET_REDIRECT_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<ajax-response><redirect><![CDATA[/en/access-denied.html]]></redirect></ajax-response>"""
+
+MAIN_PAGE_HTML_WITH_SECTORS_NO_MORE = """
+<html><head><title>Test ETF | WKN | LU0TEST</title></head><body>
+<div data-testid="etf-holdings_sectors_container">
+  <table data-testid="etf-holdings_sectors_table">
+    <tr data-testid="etf-holdings_sectors_row">
+      <td data-testid="tl_etf-holdings_sectors_value_name">Technology</td>
+      <td><span data-testid="tl_etf-holdings_sectors_value_percentage">97.14%</span></td>
+    </tr>
+    <tr data-testid="etf-holdings_sectors_row">
+      <td data-testid="tl_etf-holdings_sectors_value_name">Other</td>
+      <td><span data-testid="tl_etf-holdings_sectors_value_percentage">2.86%</span></td>
+    </tr>
+  </table>
+  <!-- No load-more link here -->
+</div>
+<div data-testid="etf-holdings_countries_container">
+  <table data-testid="etf-holdings_countries_table">
+    <tr data-testid="etf-holdings_countries_row">
+      <td data-testid="tl_etf-holdings_countries_value_name">United States</td>
+      <td><span data-testid="tl_etf-holdings_countries_value_percentage">65.81%</span></td>
+    </tr>
+  </table>
+  <!-- No load-more link here -->
+</div>
+</body></html>"""
+
+
+def test_fetch_ajax_returns_none_on_wicket_redirect() -> None:
+    """Test that _fetch_ajax_data returns None when Wicket responds with a redirect."""
+    from justetf_scraping.etf_profile import _fetch_ajax_data
+
+    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
+        mock_session = mock_session_cls.return_value
+        mock_resp = mock_session.get.return_value
+        mock_resp.status_code = 200
+        mock_resp.text = WICKET_REDIRECT_XML
+
+        result = _fetch_ajax_data(mock_session, "LU0TEST", "some-endpoint", "id99")
+        assert result is None
+
+
+def test_get_etf_overview_sectors_fallback_when_no_load_more() -> None:
+    """Test that sectors are parsed from soup when no load-more button exists in page."""
+    with (
+        patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls,
+        patch("justetf_scraping.etf_profile.load_live_quote", return_value=None),
+    ):
+        mock_session = mock_session_cls.return_value
+        mock_resp = mock_session.get.return_value
+        mock_resp.status_code = 200
+        mock_resp.text = MAIN_PAGE_HTML_WITH_SECTORS_NO_MORE
+
+        result = get_etf_overview(
+            "LU0TEST", include_gettex=False, expand_allocations=True
+        )
+
+        # Sectors must come from soup (2 items), not be empty due to AJAX redirect
+        assert len(result["sectors"]) == 2
+        assert result["sectors"][0]["name"] == "Technology"
+        assert result["sectors"][0]["percentage"] == 97.14
+        assert result["sectors"][1]["name"] == "Other"
+        assert result["sectors"][1]["percentage"] == 2.86
+
+        # Countries from soup too (1 item)
+        assert len(result["countries"]) == 1
+        assert result["countries"][0]["name"] == "United States"
