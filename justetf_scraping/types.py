@@ -117,6 +117,15 @@ def parse_quote_trend(raw_quote_trend: RawQuoteTrend) -> QuoteTrend | None:
     return None
 
 
+def parse_timestamp(timestamp: str) -> datetime.datetime:
+    """
+    Parse a quote timestamp.
+    """
+    if timestamp.endswith("Z"):
+        timestamp = f"{timestamp[:-1]}+00:00"
+    return datetime.datetime.fromisoformat(timestamp)
+
+
 @dataclasses.dataclass
 class Quote:
     """
@@ -166,7 +175,7 @@ def parse_quote(raw_quote: RawQuote) -> Quote:
     """
     return Quote(
         isin=raw_quote["isin"],
-        timestamp=datetime.datetime.fromisoformat(raw_quote["timestamp"]),
+        timestamp=parse_timestamp(raw_quote["timestamp"]),
         exchange=raw_quote["stockExchange"],
         currency=raw_quote["currency"],
         trend=parse_quote_trend(raw_quote["trend"]),
