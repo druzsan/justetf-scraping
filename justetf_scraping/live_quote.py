@@ -12,7 +12,7 @@ from .helpers import USER_AGENT
 from .types import Quote, RawQuote, parse_quote
 
 WEBSOCKET_URL = "wss://api.mobile.stock-data-subscriptions.justetf.com/?subscription=trend&parameters=isins:{isin}/currency:EUR/language:en"
-
+WEBSOCKET_TIMEOUT = 10
 
 def iterate_raw_live_quote(isin: str) -> Iterator[RawQuote]:
     """
@@ -32,6 +32,7 @@ def iterate_raw_live_quote(isin: str) -> Iterator[RawQuote]:
         websocket.create_connection(
             WEBSOCKET_URL.format(isin=isin),
             headers={"User-Agent": USER_AGENT, "Origin": "https://www.justetf.com"},
+            timeout=WEBSOCKET_TIMEOUT,
         )
     ) as ws:
         while True:
