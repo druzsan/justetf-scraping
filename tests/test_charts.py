@@ -162,3 +162,112 @@ def test_load_chart_with_unclosed(monkeypatch: pytest.MonkeyPatch) -> None:
     assert len(df) == 6
     assert df.index[-1] == pd.to_datetime("2026-01-20")
     assert df.at[pd.to_datetime("2026-01-20"), "quote"] == 110
+
+
+def _load_mocked_intraday_raw_chart(
+    isin: str,
+    currency: justetf_scraping.types.Currency = "EUR",
+    period: "str | None" = None,
+) -> justetf_scraping.charts.RawChart:
+    """
+    Mocked `load_raw_chart` for the intraday (``period="D1"``) case.
+
+    - ``"eur_intraday"`` returns a populated current-day ``series``.
+    - anything else returns empty ``series``/``prevDaySeries`` (mirrors the
+      real endpoint for non-EUR currencies or outside market hours).
+    """
+    if isin == "eur_intraday" and currency == "EUR":
+        return {
+            "latestQuote": {"raw": 108, "localized": "108"},
+            "latestQuoteDate": "2026-01-20",
+            "price": {"raw": 105, "localized": "105"},
+            "performance": {"raw": 0, "localized": "0"},
+            "prevDaySeries": [
+                {
+                    "date": "2026-01-19T05:30:00Z",
+                    "value": {"raw": 104, "localized": "104"},
+                },
+            ],
+            "series": [
+                {
+                    "date": "2026-01-20T05:30:00Z",
+                    "value": {"raw": 106, "localized": "106"},
+                },
+                {
+                    "date": "2026-01-20T05:31:00Z",
+                    "value": {"raw": 109, "localized": "109"},
+                },
+                {
+                    "date": "2026-01-20T05:32:00Z",
+                    "value": {"raw": 103, "localized": "103"},
+                },
+                {
+                    "date": "2026-01-20T05:33:00Z",
+                    "value": {"raw": 108, "localized": "108"},
+                },
+            ],
+            "latestDate": "2026-01-20",
+            "endOfDay": None,
+            "features": {},
+        }
+    return {
+        "latestQuote": {"raw": 108, "localized": "108"},
+        "latestQuoteDate": "2026-01-20",
+        "price": {"raw": 105, "localized": "105"},
+        "performance": None,
+        "prevDaySeries": [],
+        "series": [],
+        "latestDate": "2026-01-19",
+        "endOfDay": None,
+        "features": {},
+    }
+
+
+def test_load_raw_series(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Test the generic raw series extraction helper.
+    """
+    monkeypatch.setattr(
+        "justetf_scraping.charts.load_raw_chart", _load_mocked_intraday_raw_chart
+    )
+
+    series = justetf_scraping.load_raw_series("eur_intraday")
+    assert [point["value"]["raw"] for point in series] == [106, 109, 103, 108]
+
+    prev = justetf_scraping.load_raw_series(
+        "eur_intraday", series_field="prevDaySeries"
+    )
+    assert [point["value"]["raw"] for point in prev] == [104]
+
+    # Non-EUR / empty case returns an empty list, never None.
+    empty = justetf_scraping.load_raw_series("eur_intraday", currency="USD")
+    assert empty == []
+
+
+def test_load_intraday_ohlc(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Test intraday OHL computation from the current-day series.
+    """
+    monkeypatch.setattr(
+        "justetf_scraping.charts.load_raw_chart", _load_mocked_intraday_raw_chart
+    )
+
+    ohlc = justetf_scraping.load_intraday_ohlc("eur_intraday")
+    assert ohlc == {
+        "open": 106,
+        "high": 109,
+        "low": 103,
+        "last": 108,
+        "date": "2026-01-20",
+    }
+
+
+def test_load_intraday_ohlc_empty(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Test that an empty intraday series (non-EUR / off-hours) yields None.
+    """
+    monkeypatch.setattr(
+        "justetf_scraping.charts.load_raw_chart", _load_mocked_intraday_raw_chart
+    )
+
+    assert justetf_scraping.load_intraday_ohlc("eur_intraday", currency="USD") is None
