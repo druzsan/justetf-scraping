@@ -766,3 +766,22 @@ Optionally, use make targets for predefined commands, e.g. `make sync` to instal
 ## Thanks
 
 This project was inspired by [this](https://stackoverflow.com/questions/64813023/scraping-dynamic-datatable-of-many-pages-but-same-url) Stack Overflow question.
+
+### ETF listings
+
+`get_etf_overview` also returns `overview["listings"]`, parsed from the existing
+profile response (no additional request):
+
+```python
+overview = justetf_scraping.get_etf_overview(ISIN, include_gettex=False)
+for listing in overview["listings"]:
+    print(listing["exchange"], listing["currency"], listing["ticker"])
+```
+
+Each listing contains `exchange`, `currency`, `ticker`, `bloomberg`,
+`inav_bloomberg`, `reuters`, `inav_reuters`, and `market_maker`.
+Missing field values are `None`; a missing table produces an empty list.
+Multiple currencies on the same exchange remain separate rows. These are
+listings reported by justETF, not a guarantee of every available trading venue.
+Reuters RICs are preserved as supplied; they are not Yahoo Finance identifiers.
+Listing metadata does not provide live bid/ask quotes.
