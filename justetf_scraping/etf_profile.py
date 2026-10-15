@@ -249,11 +249,10 @@ def get_etf_overview(
         if "|" in title_text:
             name = title_text.split("|")[0].strip()
 
-    # Parse basic data from table 2
+    # Parse basic data from the basics table; its position on the page changes
     basic_data = {}
-    tables = soup.find_all("table")
-    if len(tables) >= 2:
-        table = tables[1]
+    table = soup.find("table", attrs={"data-testid": "etf-basics_data_table"})
+    if table is not None:
         rows = table.find_all("tr")
         for row in rows:
             cells = row.find_all(["th", "td"])
