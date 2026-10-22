@@ -14,6 +14,7 @@ from xml.etree import ElementTree
 import requests
 from bs4 import BeautifulSoup, Tag
 
+from .helpers import USER_AGENT
 from .live_quote import load_live_quote
 from .types import Quote
 
@@ -88,9 +89,6 @@ class EtfOverview(TypedDict):
 
 # Constants
 BASE_URL = "https://www.justetf.com/en/etf-profile.html"
-DEFAULT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-}
 LISTINGS_ROW_TESTID_PREFIX = "etf-trade-data-panel_row-"
 # Placeholders justETF uses for missing table values.
 MISSING_VALUES = {"", "-", "–", "—", "N/A"}
@@ -147,7 +145,6 @@ def _fetch_ajax_data(
     """
     ajax_url = f"{BASE_URL}?0-1.0-{endpoint}&isin={isin}&_wicket=1"
     ajax_headers = {
-        **DEFAULT_HEADERS,
         "X-Requested-With": "XMLHttpRequest",
         "Wicket-Ajax": "true",
         "Wicket-Ajax-BaseURL": f"en/etf-profile.html?isin={isin}",
@@ -291,10 +288,11 @@ def get_etf_overview(
         EtfOverview dictionary with all available data
     """
     session = requests.Session()
+    session.headers["User-Agent"] = USER_AGENT
 
     # Fetch main page
     url = f"{BASE_URL}?isin={isin}"
-    response = session.get(url, headers=DEFAULT_HEADERS)
+    response = session.get(url)
 
     if response.status_code != 200:
         raise RuntimeError(

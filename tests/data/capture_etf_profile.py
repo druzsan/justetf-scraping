@@ -17,7 +17,8 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup, Comment
 
-from justetf_scraping.etf_profile import BASE_URL, DEFAULT_HEADERS
+from justetf_scraping.etf_profile import BASE_URL
+from justetf_scraping.helpers import USER_AGENT
 
 OUTPUT_DIR = Path(__file__).parent / "etf_profile"
 SECTION_TESTIDS = [
@@ -61,7 +62,9 @@ def capture(isin: str) -> Path:
     """
     Capture the profile page of the given ETF.
     """
-    response = requests.get(BASE_URL, params={"isin": isin}, headers=DEFAULT_HEADERS)
+    response = requests.get(
+        BASE_URL, params={"isin": isin}, headers={"User-Agent": USER_AGENT}
+    )
     response.raise_for_status()
     path = OUTPUT_DIR / f"{isin}.html"
     path.parent.mkdir(parents=True, exist_ok=True)
