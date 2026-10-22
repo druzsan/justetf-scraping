@@ -765,6 +765,14 @@ uv run notebook
 
 Optionally, use make targets for predefined commands, e.g. `make sync` to install all dependencies. Run `make help` to see all commands.
 
+### Test data
+
+Tests never make network requests. Keep small hand-written snippets for edge cases inline in the test module. Store real justETF responses under `tests/data/<module>/<id>.<ext>`, e.g. `tests/data/etf_profile/IE00B4L5Y983.html`, and share them via fixtures in `tests/conftest.py`. Never edit captured files by hand, recapture them with a script instead:
+
+```shell
+uv run python tests/data/capture_etf_profile.py IE00B4L5Y983
+```
+
 ## Similar Projects
 
 - https://github.com/AshNL/justETF-overview-scraper

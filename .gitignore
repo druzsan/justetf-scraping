@@ -3,7 +3,7 @@
 /data/
 *.csv
 *.html
-!tests/fixtures/*.html
+!/tests/data/**
 
 # IDE
 .vscode/
