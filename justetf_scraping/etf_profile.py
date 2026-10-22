@@ -7,6 +7,8 @@ This module provides functions to:
 """
 
 import re
+import warnings
+import websocket
 from typing import List, Optional, TypedDict
 from xml.etree import ElementTree
 
@@ -422,8 +424,21 @@ def get_etf_overview(
 
     # Get gettex quote
     gettex = None
+
     if include_gettex:
-        gettex = load_live_quote(isin)
+        try:
+            gettex = load_live_quote(isin)
+        except websocket.WebSocketTimeoutException:
+            warnings.warn(
+                f"No gettex quote received for {isin} "
+                "within the configured timeout.",
+                stacklevel=2,
+            )
+        except websocket.WebSocketException as exc:
+            warnings.warn(
+                f"Could not load gettex quote for {isin}: {exc}",
+                stacklevel=2,
+            )
 
     # Build result
     return EtfOverview(

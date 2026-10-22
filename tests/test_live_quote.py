@@ -68,6 +68,7 @@ UP_QUOTE: justetf_scraping.types.RawQuote = {
 
 def _iterate_mocked_raw_live_quote(
     isin: str,
+    timeout: float | None = None,
 ) -> Iterator[justetf_scraping.types.RawQuote]:
     """
     Mocked version of `justetf_scraping.live_quote.iterate_raw_live_quote`.
@@ -76,6 +77,7 @@ def _iterate_mocked_raw_live_quote(
 
     In contrast to the actual function, this iterator is finite
     """
+    del timeout #Timeout is not needed inside the Mock
     if isin == "initial":
         yield INITIAL_QUOTE
     elif isin == "down":
