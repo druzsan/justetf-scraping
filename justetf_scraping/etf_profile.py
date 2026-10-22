@@ -7,6 +7,7 @@ This module provides functions to:
 """
 
 import re
+import warnings
 from typing import List, Optional, TypedDict
 from xml.etree import ElementTree
 
@@ -282,7 +283,8 @@ def get_etf_overview(
 
     Args:
         isin: The ISIN of the ETF
-        include_gettex: Whether to fetch real-time gettex quote (default: True)
+        include_gettex: Whether to fetch real-time gettex quote (default: True).
+            If the ETF has no gettex quotes, `gettex` is `None`.
         expand_allocations: Whether to fetch full countries/sectors lists via AJAX (default: True)
 
     Returns:
@@ -423,7 +425,10 @@ def get_etf_overview(
     # Get gettex quote
     gettex = None
     if include_gettex:
-        gettex = load_live_quote(isin)
+        try:
+            gettex = load_live_quote(isin)
+        except TimeoutError as e:
+            warnings.warn(str(e), stacklevel=2)
 
     # Build result
     return EtfOverview(

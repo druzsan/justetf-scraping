@@ -3,9 +3,11 @@ Tests for `justetf_scraping.live_quote` module.
 """
 
 import datetime
+import json
 from typing import Iterator
 
 import pytest
+import websocket
 
 import justetf_scraping.live_quote
 import justetf_scraping.types
@@ -68,6 +70,7 @@ UP_QUOTE: justetf_scraping.types.RawQuote = {
 
 def _iterate_mocked_raw_live_quote(
     isin: str,
+    timeout: float | None = None,
 ) -> Iterator[justetf_scraping.types.RawQuote]:
     """
     Mocked version of `justetf_scraping.live_quote.iterate_raw_live_quote`.
@@ -144,3 +147,96 @@ def test_iterate_live_quote(monkeypatch: pytest.MonkeyPatch) -> None:
     assert quotes[0].trend is None
     assert quotes[1].trend == "down"
     assert quotes[2].trend == "up"
+
+
+class _FakeWebSocket:
+    """
+    Fake `websocket.WebSocket` sending predefined messages, then timing out.
+    """
+
+    def __init__(self, messages: list[justetf_scraping.types.RawQuote]) -> None:
+        self.messages = [json.dumps(message) for message in messages]
+        self.timeout: float | None = None
+        self.closed = False
+
+    def recv(self) -> str:
+        """
+        Receive the next message, time out if there are no more messages.
+        """
+        if not self.messages:
+            raise websocket.WebSocketTimeoutException("Connection timed out")
+        return self.messages.pop(0)
+
+    def settimeout(self, timeout: float | None) -> None:
+        """
+        Set the receive timeout.
+        """
+        self.timeout = timeout
+
+    def close(self) -> None:
+        """
+        Close the connection.
+        """
+        self.closed = True
+
+
+def _mock_websocket(
+    monkeypatch: pytest.MonkeyPatch, messages: list[justetf_scraping.types.RawQuote]
+) -> _FakeWebSocket:
+    """
+    Mock the websocket connection to send the given messages.
+    """
+    ws = _FakeWebSocket(messages)
+
+    def create_connection(
+        url: str,
+        headers: dict[str, str],
+        timeout: float | None,
+    ) -> _FakeWebSocket:
+        ws.settimeout(timeout)
+        return ws
+
+    monkeypatch.setattr(
+        "justetf_scraping.live_quote.websocket.create_connection", create_connection
+    )
+    return ws
+
+
+def test_load_live_quote_closes_connection(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Test that loading the live quote closes the connection.
+    """
+    ws = _mock_websocket(monkeypatch, [INITIAL_QUOTE])
+
+    quote = justetf_scraping.live_quote.load_live_quote("IE00TEST")
+
+    assert quote.isin == INITIAL_QUOTE["isin"]
+    assert ws.timeout == justetf_scraping.live_quote.DEFAULT_TIMEOUT
+    assert ws.closed
+
+
+def test_load_live_quote_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Test that a missing initial quote raises `TimeoutError`.
+    """
+    ws = _mock_websocket(monkeypatch, [])
+
+    with pytest.raises(TimeoutError, match="IE00TEST"):
+        justetf_scraping.live_quote.load_live_quote("IE00TEST")
+    assert ws.closed
+
+
+def test_iterate_live_quote_waits_for_updates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    Test that only the initial quote is awaited with timeout, updates without.
+    """
+    ws = _mock_websocket(monkeypatch, [INITIAL_QUOTE, DOWN_QUOTE])
+
+    quotes = justetf_scraping.live_quote.iterate_live_quote("IE00TEST", timeout=1.0)
+
+    assert next(quotes).trend is None
+    assert ws.timeout == 1.0
+    assert next(quotes).trend == "down"
+    assert ws.timeout is None
