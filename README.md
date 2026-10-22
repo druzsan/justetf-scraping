@@ -691,11 +691,15 @@ for sector in overview['sectors']:
 for holding in overview['top_holdings']:
     print(f"  {holding['name']} ({holding['isin']}): {holding['percentage']}%")
 
+# Access stock exchange listings
+for listing in overview['listings']:
+    print(f"  {listing['exchange']} ({listing['exchange_code']}): {listing['ticker']} in {listing['currency']}")
+
 # Access real-time gettex quote
 quote = overview['gettex']
-print(f"Bid: {quote['bid']} {quote['currency']}")
-print(f"Ask: {quote['ask']} {quote['currency']}")
-print(f"Day Change: {quote['day_change_percent']}%")
+print(f"Bid: {quote.bid} {quote.currency}")
+print(f"Ask: {quote.ask} {quote.currency}")
+print(f"Day Change: {quote.day_to_day_percentage}%")
 ```
 
 The `get_etf_overview` function returns a dictionary with:
@@ -716,7 +720,10 @@ The `get_etf_overview` function returns a dictionary with:
 | `countries`           | list  | Full country allocation          |
 | `sectors`             | list  | Full sector allocation           |
 | `top_holdings`        | list  | Top 10 holdings with ISINs       |
-| `gettex`              | dict  | Real-time quote data             |
+| `listings`            | list  | Stock exchange listings          |
+| `gettex`              | Quote | Real-time quote data             |
+
+Each listing contains `exchange_code` (MIC, e.g. `XETR`), `exchange` (name), `currency`, `ticker`, `bloomberg`, `inav_bloomberg`, `reuters`, `inav_reuters` and `market_maker`. Missing values are `None`. Multiple trade currencies on the same exchange are separate listings. Listings are parsed from the same profile page, so no additional request is made.
 
 For a complete example, see [test_scrape.py](notebooks/test_scrape.py)
 
@@ -757,6 +764,14 @@ uv run notebook
 ```
 
 Optionally, use make targets for predefined commands, e.g. `make sync` to install all dependencies. Run `make help` to see all commands.
+
+### Test data
+
+Tests never make network requests. Keep small hand-written snippets for edge cases inline in the test module. Store real justETF responses under `tests/data/<module>/<id>.<ext>`, e.g. `tests/data/etf_profile/IE00B4L5Y983.html`, and share them via fixtures in `tests/conftest.py`. Never edit captured files by hand, recapture them with a script instead:
+
+```shell
+uv run python tests/data/capture_etf_profile.py IE00B4L5Y983
+```
 
 ## Similar Projects
 

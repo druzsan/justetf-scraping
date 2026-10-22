@@ -2,6 +2,7 @@
 Tests for `justetf_scraping.live_quote` module.
 """
 
+import datetime
 from typing import Iterator
 
 import pytest
@@ -98,6 +99,9 @@ def test_load_initial_live_quote(monkeypatch: pytest.MonkeyPatch) -> None:
 
     quote = justetf_scraping.live_quote.load_live_quote("initial")
     assert quote.trend is None
+    assert quote.timestamp == datetime.datetime(
+        2026, 1, 30, tzinfo=datetime.timezone.utc
+    )
 
 
 def test_load_down_live_quote(monkeypatch: pytest.MonkeyPatch) -> None:

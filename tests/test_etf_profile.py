@@ -269,3 +269,84 @@ def test_get_etf_overview_sectors_fallback_when_no_load_more() -> None:
         # Countries from soup too (1 item)
         assert len(result["countries"]) == 1
         assert result["countries"][0]["name"] == "United States"
+
+
+# --- Bug 4: basic data read from the wrong table ---
+
+# Current profile page layout (October 2026): the basics table comes first and
+# carries a data-testid; the second table holds fund structure data instead.
+PROFILE_HTML = """<html><head><title>Test ETF | WKN | IE00TEST</title></head><body>
+<table data-testid="etf-basics_data_table">
+<tr><td>Fund size</td><td>EUR 133,518 m</td></tr>
+<tr><td>Total expense ratio</td><td>0.20% p.a.</td></tr>
+<tr><td>Replication</td><td>Physical(Optimized sampling)</td></tr>
+<tr><td>Fund currency</td><td>USD</td></tr>
+<tr><td>Currency risk</td><td>Currency unhedged</td></tr>
+<tr><td>Volatility 1 year (in EUR)</td><td>10.48%</td></tr>
+<tr><td>Distribution policy</td><td>Accumulating</td></tr>
+<tr><td>Fund domicile</td><td>Ireland</td></tr>
+<tr><td>Fund Provider</td><td>iShares</td></tr>
+</table>
+<table class="table etf-data-table m-sep">
+<tr><td>Fund Structure</td><td>Open-ended Investment Company (OEIC)</td></tr>
+<tr><td>UCITS compliance</td><td>Yes</td></tr>
+</table>
+</body></html>"""
+
+
+def test_basic_data_from_basics_table() -> None:
+    """Test that basic data comes from the basics table, not from table position."""
+    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
+        mock_response = mock_session_cls.return_value.get.return_value
+        mock_response.status_code = 200
+        mock_response.text = PROFILE_HTML
+
+        result = get_etf_overview(
+            "IE00TEST", include_gettex=False, expand_allocations=False
+        )
+
+    assert result["fund_size_eur"] == 133518.0
+    assert result["ter"] == 0.20
+    assert result["replication"] == "Physical(Optimized sampling)"
+    assert result["fund_currency"] == "USD"
+    assert result["currency_hedged"] is False
+    assert result["volatility_1y"] == 10.48
+    assert result["distribution_policy"] == "Accumulating"
+    assert result["fund_domicile"] == "Ireland"
+    assert result["fund_provider"] == "iShares"
+
+
+def test_overview_from_captured_page(etf_profile_html: str) -> None:
+    """Test parsing the whole overview from a captured profile page."""
+    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
+        mock_session = mock_session_cls.return_value
+        mock_response = mock_session.get.return_value
+        mock_response.status_code = 200
+        mock_response.text = etf_profile_html
+
+        result = get_etf_overview(
+            "IE00B4L5Y983", include_gettex=False, expand_allocations=False
+        )
+
+        mock_session.get.assert_called_once()
+
+    assert result["name"] == "iShares Core MSCI World UCITS ETF USD (Acc)"
+    assert (result["description"] or "").startswith(
+        "The iShares Core MSCI World UCITS ETF USD (Acc) seeks to track"
+    )
+    assert result["index"] == "MSCI World"
+    assert result["fund_size_eur"] == 131754.0
+    assert result["ter"] == 0.2
+    assert result["fund_currency"] == "USD"
+    assert result["currency_hedged"] is False
+    assert result["fund_provider"] == "iShares"
+    assert len(result["top_holdings"]) == 10
+    assert result["top_holdings"][0] == {
+        "name": "NVIDIA Corp.",
+        "percentage": 5.53,
+        "isin": "US67066G1040",
+    }
+    assert result["countries"][0] == {"name": "United States", "percentage": 70.32}
+    assert result["sectors"][0] == {"name": "Technology", "percentage": 35.71}
+    assert result["holdings_date"] == "31/08/2026"
+    assert len(result["listings"]) == 10

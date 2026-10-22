@@ -11,7 +11,7 @@ from typing import List, Optional, TypedDict
 from xml.etree import ElementTree
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from .live_quote import load_live_quote
 from .types import Quote
@@ -35,6 +35,22 @@ class HoldingItem(TypedDict):
     name: str
     percentage: float
     isin: Optional[str]
+
+
+class ListingItem(TypedDict):
+    """
+    Stock exchange listing. Vendor codes are identifiers, not quote data.
+    """
+
+    exchange_code: str
+    exchange: str
+    currency: Optional[str]
+    ticker: Optional[str]
+    bloomberg: Optional[str]
+    inav_bloomberg: Optional[str]
+    reuters: Optional[str]
+    inav_reuters: Optional[str]
+    market_maker: Optional[str]
 
 
 class EtfOverview(TypedDict):
@@ -65,6 +81,7 @@ class EtfOverview(TypedDict):
     countries: List[AllocationItem]
     sectors: List[AllocationItem]
     holdings_date: Optional[str]
+    listings: List[ListingItem]
     gettex: Optional[Quote]
 
 
@@ -73,9 +90,12 @@ BASE_URL = "https://www.justetf.com/en/etf-profile.html"
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
+LISTINGS_ROW_TESTID_PREFIX = "etf-trade-data-panel_row-"
+# Placeholders justETF uses for missing table values.
+MISSING_VALUES = {"", "-", "–", "—", "N/A"}
 
 
-def _parse_percentage(value: str) -> Optional[float]:
+def _parse_percentage(value: Optional[str]) -> Optional[float]:
     """Parse percentage string to float (e.g., '59.03%' -> 59.03)."""
     if not value:
         return None
@@ -85,7 +105,7 @@ def _parse_percentage(value: str) -> Optional[float]:
     return None
 
 
-def _parse_fund_size(value: str) -> Optional[float]:
+def _parse_fund_size(value: Optional[str]) -> Optional[float]:
     """Parse fund size string to float in millions (e.g., 'EUR 18,588 m' -> 18588.0)."""
     if not value:
         return None
@@ -95,7 +115,7 @@ def _parse_fund_size(value: str) -> Optional[float]:
     return None
 
 
-def _parse_ter(value: str) -> Optional[float]:
+def _parse_ter(value: Optional[str]) -> Optional[float]:
     """Parse TER string to float (e.g., '0.19% p.a.' -> 0.19)."""
     return _parse_percentage(value)
 
@@ -209,6 +229,53 @@ def _parse_allocation_from_soup(
     return allocations
 
 
+def _parse_cell_value(row: Tag, testid: str) -> Optional[str]:
+    """
+    Parse text of the row element with the given data-testid, `None` if the
+    element is missing or holds a placeholder.
+    """
+    element = row.find(attrs={"data-testid": testid})
+    if element is None:
+        return None
+    value = element.get_text(" ", strip=True)
+    return None if value in MISSING_VALUES else value
+
+
+def _parse_listings(soup: BeautifulSoup) -> List[ListingItem]:
+    """
+    Parse stock exchange listings. Multiple currencies on one exchange are kept
+    as separate listings.
+    """
+    listings: List[ListingItem] = []
+    table = soup.find("table", attrs={"data-testid": "etf-trade-data-panel_table"})
+    if table is None:
+        return listings
+
+    for row in table.select(f'tr[data-testid^="{LISTINGS_ROW_TESTID_PREFIX}"]'):
+        # Scope every lookup to this row: exchange codes may repeat for currencies.
+        prefix = row.get("data-testid")
+        if not isinstance(prefix, str):
+            continue
+        exchange = _parse_cell_value(row, f"{prefix}_listing")
+        if exchange is None:
+            continue
+        listings.append(
+            ListingItem(
+                # MIC of the exchange, e.g. "XETR", see `EXCHANGES`.
+                exchange_code=prefix.removeprefix(LISTINGS_ROW_TESTID_PREFIX).upper(),
+                exchange=exchange,
+                currency=_parse_cell_value(row, f"{prefix}_trade-currency"),
+                ticker=_parse_cell_value(row, f"{prefix}_ticker"),
+                bloomberg=_parse_cell_value(row, f"{prefix}_bloomberg"),
+                inav_bloomberg=_parse_cell_value(row, f"{prefix}_inav-bloomberg"),
+                reuters=_parse_cell_value(row, f"{prefix}_reuters"),
+                inav_reuters=_parse_cell_value(row, f"{prefix}_inav-reuters"),
+                market_maker=_parse_cell_value(row, f"{prefix}_market-maker"),
+            )
+        )
+    return listings
+
+
 def get_etf_overview(
     isin: str, include_gettex: bool = True, expand_allocations: bool = True
 ) -> EtfOverview:
@@ -251,11 +318,10 @@ def get_etf_overview(
         if "|" in title_text:
             name = title_text.split("|")[0].strip()
 
-    # Parse basic data from table 2
+    # Parse basic data from the basics table; its position on the page changes
     basic_data = {}
-    tables = soup.find_all("table")
-    if len(tables) >= 2:
-        table = tables[1]
+    table = soup.find("table", attrs={"data-testid": "etf-basics_data_table"})
+    if table is not None:
         rows = table.find_all("tr")
         for row in rows:
             cells = row.find_all(["th", "td"])
@@ -281,9 +347,9 @@ def get_etf_overview(
             holding_name = name_elem.get_text(strip=True)
             pct = _parse_percentage(pct_elem.get_text(strip=True))
             # Try to extract ISIN from link
-            href = name_elem.get("href", "")
+            href = name_elem.get("href")
             holding_isin = None
-            if "/stock-profiles/" in href:
+            if isinstance(href, str) and "/stock-profiles/" in href:
                 holding_isin = href.split("/stock-profiles/")[-1]
             if holding_name and pct is not None:
                 top_holdings.append(
@@ -360,6 +426,8 @@ def get_etf_overview(
         _parse_date(ref_date_elem.get_text(strip=True)) if ref_date_elem else None
     )
 
+    listings = _parse_listings(soup)
+
     # Get gettex quote
     gettex = None
     if include_gettex:
@@ -391,6 +459,7 @@ def get_etf_overview(
         countries=countries,
         sectors=sectors,
         holdings_date=holdings_date,
+        listings=listings,
         gettex=gettex,
     )
 
