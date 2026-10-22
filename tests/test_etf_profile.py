@@ -196,3 +196,48 @@ def test_parse_ajax_invalid_xml() -> None:
         "tl_etf-holdings_countries_value_percentage",
     )
     assert result == []
+
+
+# --- Bug 3: basic data read from the wrong table ---
+
+# Current profile page layout (October 2026): the basics table comes first and
+# carries a data-testid; the second table holds fund structure data instead.
+PROFILE_HTML = """<html><head><title>Test ETF | WKN | IE00TEST</title></head><body>
+<table data-testid="etf-basics_data_table">
+<tr><td>Fund size</td><td>EUR 133,518 m</td></tr>
+<tr><td>Total expense ratio</td><td>0.20% p.a.</td></tr>
+<tr><td>Replication</td><td>Physical(Optimized sampling)</td></tr>
+<tr><td>Fund currency</td><td>USD</td></tr>
+<tr><td>Currency risk</td><td>Currency unhedged</td></tr>
+<tr><td>Volatility 1 year (in EUR)</td><td>10.48%</td></tr>
+<tr><td>Distribution policy</td><td>Accumulating</td></tr>
+<tr><td>Fund domicile</td><td>Ireland</td></tr>
+<tr><td>Fund Provider</td><td>iShares</td></tr>
+</table>
+<table class="table etf-data-table m-sep">
+<tr><td>Fund Structure</td><td>Open-ended Investment Company (OEIC)</td></tr>
+<tr><td>UCITS compliance</td><td>Yes</td></tr>
+</table>
+</body></html>"""
+
+
+def test_basic_data_from_basics_table() -> None:
+    """Test that basic data comes from the basics table, not from table position."""
+    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
+        mock_response = mock_session_cls.return_value.get.return_value
+        mock_response.status_code = 200
+        mock_response.text = PROFILE_HTML
+
+        result = get_etf_overview(
+            "IE00TEST", include_gettex=False, expand_allocations=False
+        )
+
+    assert result["fund_size_eur"] == 133518.0
+    assert result["ter"] == 0.20
+    assert result["replication"] == "Physical(Optimized sampling)"
+    assert result["fund_currency"] == "USD"
+    assert result["currency_hedged"] is False
+    assert result["volatility_1y"] == 10.48
+    assert result["distribution_policy"] == "Accumulating"
+    assert result["fund_domicile"] == "Ireland"
+    assert result["fund_provider"] == "iShares"
