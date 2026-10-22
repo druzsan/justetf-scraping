@@ -37,6 +37,19 @@ class HoldingItem(TypedDict):
     isin: Optional[str]
 
 
+class ListingItem(TypedDict):
+    """A listing reported by justETF; vendor codes are not quote data."""
+
+    exchange: str
+    currency: Optional[str]
+    ticker: Optional[str]
+    bloomberg: Optional[str]
+    inav_bloomberg: Optional[str]
+    reuters: Optional[str]
+    inav_reuters: Optional[str]
+    market_maker: Optional[str]
+
+
 class EtfOverview(TypedDict):
     """
     ETF overview.
@@ -65,6 +78,7 @@ class EtfOverview(TypedDict):
     countries: List[AllocationItem]
     sectors: List[AllocationItem]
     holdings_date: Optional[str]
+    listings: List[ListingItem]
     gettex: Optional[Quote]
 
 
@@ -205,6 +219,40 @@ def _parse_allocation_from_soup(
             if name and pct is not None:
                 allocations.append(AllocationItem(name=name, percentage=pct))
     return allocations
+
+
+def _parse_listings(soup: BeautifulSoup) -> List[ListingItem]:
+    """Extract all listing rows, including multiple currencies on one exchange."""
+    listings = []
+    table = soup.find("table", attrs={"data-testid": "etf-trade-data-panel_table"})
+    if table is None:
+        return listings
+
+    fields = {
+        "currency": "trade-currency",
+        "ticker": "ticker",
+        "bloomberg": "bloomberg",
+        "inav_bloomberg": "inav-bloomberg",
+        "reuters": "reuters",
+        "inav_reuters": "inav-reuters",
+        "market_maker": "market-maker",
+    }
+    for row in table.select('tr[data-testid^="etf-trade-data-panel_row-"]'):
+        # Scope every lookup to this row: exchange IDs may repeat for currencies.
+        prefix = row["data-testid"]
+        exchange_element = row.find(attrs={"data-testid": f"{prefix}_listing"})
+        if exchange_element is None:
+            continue
+        exchange = exchange_element.get_text(" ", strip=True)
+        if not exchange or exchange in {"-", "–", "—"}:
+            continue
+        values = {}
+        for field, suffix in fields.items():
+            element = row.find(attrs={"data-testid": f"{prefix}_{suffix}"})
+            value = element.get_text(" ", strip=True) if element else ""
+            values[field] = None if value in {"", "-", "–", "—"} else value
+        listings.append(ListingItem(exchange=exchange, **values))
+    return listings
 
 
 def get_etf_overview(
@@ -378,6 +426,7 @@ def get_etf_overview(
         distribution_frequency=basic_data.get("Distribution frequency"),
         fund_domicile=basic_data.get("Fund domicile"),
         fund_provider=basic_data.get("Fund Provider"),
+        listings=_parse_listings(soup),
         top_holdings=top_holdings,
         countries=countries,
         sectors=sectors,
