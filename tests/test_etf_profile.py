@@ -241,3 +241,39 @@ def test_basic_data_from_basics_table() -> None:
     assert result["distribution_policy"] == "Accumulating"
     assert result["fund_domicile"] == "Ireland"
     assert result["fund_provider"] == "iShares"
+
+
+def test_overview_from_captured_page(etf_profile_html: str) -> None:
+    """Test parsing the whole overview from a captured profile page."""
+    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
+        mock_session = mock_session_cls.return_value
+        mock_response = mock_session.get.return_value
+        mock_response.status_code = 200
+        mock_response.text = etf_profile_html
+
+        result = get_etf_overview(
+            "IE00B4L5Y983", include_gettex=False, expand_allocations=False
+        )
+
+        mock_session.get.assert_called_once()
+
+    assert result["name"] == "iShares Core MSCI World UCITS ETF USD (Acc)"
+    assert (result["description"] or "").startswith(
+        "The iShares Core MSCI World UCITS ETF USD (Acc) seeks to track"
+    )
+    assert result["index"] == "MSCI World"
+    assert result["fund_size_eur"] == 131754.0
+    assert result["ter"] == 0.2
+    assert result["fund_currency"] == "USD"
+    assert result["currency_hedged"] is False
+    assert result["fund_provider"] == "iShares"
+    assert len(result["top_holdings"]) == 10
+    assert result["top_holdings"][0] == {
+        "name": "NVIDIA Corp.",
+        "percentage": 5.53,
+        "isin": "US67066G1040",
+    }
+    assert result["countries"][0] == {"name": "United States", "percentage": 70.32}
+    assert result["sectors"][0] == {"name": "Technology", "percentage": 35.71}
+    assert result["holdings_date"] == "31/08/2026"
+    assert len(result["listings"]) == 10

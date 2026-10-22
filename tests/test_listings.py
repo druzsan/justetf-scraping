@@ -1,61 +1,81 @@
-"""Regression tests for listings using a table retrieved from justETF."""
-from pathlib import Path
-from unittest.mock import patch
+"""
+Tests for stock exchange listings parsing in `justetf_scraping.etf_profile`.
+"""
 
 from bs4 import BeautifulSoup
 
-from justetf_scraping.etf_profile import _parse_listings, get_etf_overview
+from justetf_scraping.etf_profile import _parse_listings
+
+LISTINGS_HTML_WITH_PLACEHOLDERS = """<table data-testid="etf-trade-data-panel_table">
+<tr data-testid="etf-trade-data-panel_row-xetr">
+  <td data-testid="etf-trade-data-panel_row-xetr_listing">XETRA</td>
+  <td data-testid="etf-trade-data-panel_row-xetr_trade-currency">EUR</td>
+  <td data-testid="etf-trade-data-panel_row-xetr_ticker">N/A</td>
+  <td><span data-testid="etf-trade-data-panel_row-xetr_bloomberg">-</span></td>
+</tr>
+<tr data-testid="etf-trade-data-panel_row-xlon">
+  <td data-testid="etf-trade-data-panel_row-xlon_listing">-</td>
+</tr>
+</table>"""
 
 
-def fixture_html() -> str:
-    """Load the captured Xtrackers listings table."""
-    return Path(__file__).with_name('fixtures').joinpath('listings_IE000F354Q61.html').read_text()
+def test_parse_listings(etf_profile_html: str) -> None:
+    """Test parsing listings from a captured profile page."""
+    listings = _parse_listings(BeautifulSoup(etf_profile_html, "html.parser"))
 
-
-def test_overview_listings() -> None:
-    """The overview returns actual page listings without another request."""
-    with patch('justetf_scraping.etf_profile.requests.Session') as session:
-        response = session.return_value.get.return_value
-        response.status_code = 200
-        response.text = fixture_html()
-        result = get_etf_overview('IE000F354Q61', include_gettex=False, expand_allocations=False)
-        session.return_value.get.assert_called_once()
-    listings = result['listings']
-    assert len(listings) == 5
-    assert [(x['exchange'], x['currency']) for x in listings] == [
-        ('gettex', 'EUR'), ('Borsa Italiana', 'EUR'),
-        ('London Stock Exchange', 'USD'), ('Stockholm Stock Exchange', 'SEK'),
-        ('XETRA', 'EUR'),
+    assert [
+        (listing["exchange_code"], listing["exchange"], listing["currency"])
+        for listing in listings
+    ] == [
+        ("MUND", "gettex", "EUR"),
+        ("XSTU", "Stuttgart Stock Exchange", "EUR"),
+        ("XMEX", "Bolsa Mexicana de Valores", "MXN"),
+        ("XMIL", "Borsa Italiana", "EUR"),
+        ("XAMS", "Euronext Amsterdam", "EUR"),
+        # Multiple currencies on the same exchange are separate listings.
+        ("XLON", "London Stock Exchange", "GBX"),
+        ("XLON", "London Stock Exchange", "USD"),
+        ("XLON", "London Stock Exchange", "GBP"),
+        ("XSWX", "SIX Swiss Exchange", "USD"),
+        ("XETR", "XETRA", "EUR"),
     ]
-    assert listings[-1]['ticker'] == 'XSWC'
-    assert listings[-1]['reuters'] == 'XSWC.DE'
-    assert listings[-1]['bloomberg'] is None
-    assert listings[0]['bloomberg'] is None
-    assert listings[3]['ticker'] is None
+    assert listings[-1] == {
+        "exchange_code": "XETR",
+        "exchange": "XETRA",
+        "currency": "EUR",
+        "ticker": "EUNL",
+        "bloomberg": "EUNL GY",
+        "inav_bloomberg": "INAVIWDE",
+        "reuters": "EUNL.DE",
+        "inav_reuters": "IWDAEUR.DE",
+        "market_maker": None,
+    }
+    # Placeholders ("-") are parsed as missing values.
+    assert listings[0]["bloomberg"] is None
+    assert listings[2]["ticker"] is None
 
 
-def test_multiple_currencies_and_vendor_codes() -> None:
-    """Repeated exchange identifiers must not merge different trading lines."""
-    soup = BeautifulSoup(fixture_html(), 'html.parser')
-    row = soup.select_one('tr[data-testid="etf-trade-data-panel_row-xlon"]')
-    duplicate = BeautifulSoup(str(row), 'html.parser').tr
-    duplicate.select_one('[data-testid$="_trade-currency"]').string = 'GBP'
-    duplicate.select_one('[data-testid$="_ticker"]').string = 'OTHER'
-    duplicate.select_one('[data-testid$="_inav-bloomberg"]').string = 'INAV CODE'
-    duplicate.select_one('[data-testid$="_inav-reuters"]').string = 'INAV.RIC'
-    duplicate.select_one('[data-testid$="_market-maker"]').decompose()
-    soup.tbody.append(duplicate)
-    listings = _parse_listings(soup)
-    assert len(listings) == 6
-    assert listings[2]['currency'] == 'USD'
-    assert listings[-1]['currency'] == 'GBP'
-    assert listings[-1]['ticker'] == 'OTHER'
-    assert listings[-1]['bloomberg'] == 'XSWC LN'
-    assert listings[-1]['inav_bloomberg'] == 'INAV CODE'
-    assert listings[-1]['inav_reuters'] == 'INAV.RIC'
-    assert listings[-1]['market_maker'] is None
+def test_parse_listings_placeholders() -> None:
+    """Test that placeholders and missing cells are parsed as missing values."""
+    soup = BeautifulSoup(LISTINGS_HTML_WITH_PLACEHOLDERS, "html.parser")
+
+    # The row without exchange name is skipped.
+    assert _parse_listings(soup) == [
+        {
+            "exchange_code": "XETR",
+            "exchange": "XETRA",
+            "currency": "EUR",
+            "ticker": None,
+            "bloomberg": None,
+            "inav_bloomberg": None,
+            "reuters": None,
+            "inav_reuters": None,
+            "market_maker": None,
+        }
+    ]
 
 
-def test_missing_table() -> None:
-    """Other tables must not be mistaken for listings."""
-    assert _parse_listings(BeautifulSoup('<table><tr><td>XETRA</td></tr></table>', 'html.parser')) == []
+def test_parse_listings_missing_table() -> None:
+    """Test that other tables are not mistaken for listings."""
+    soup = BeautifulSoup("<table><tr><td>XETRA</td></tr></table>", "html.parser")
+    assert _parse_listings(soup) == []
