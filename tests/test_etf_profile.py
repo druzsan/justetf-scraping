@@ -4,6 +4,8 @@ Tests for `justetf_scraping.etf_profile` module.
 
 from unittest.mock import patch
 
+import pytest
+
 from justetf_scraping.etf_profile import (
     _parse_allocation_from_ajax,
     _parse_percentage,
@@ -70,6 +72,28 @@ def test_include_gettex_false_skips_quote() -> None:
         )
 
         mock_llq.assert_not_called()
+        assert result["gettex"] is None
+
+
+def test_include_gettex_without_gettex_quotes() -> None:
+    """Test that a live quote timeout gives no quote and a warning, not an error."""
+    with (
+        patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls,
+        patch(
+            "justetf_scraping.etf_profile.load_live_quote",
+            side_effect=TimeoutError("No live quote for IE00TEST received"),
+        ),
+    ):
+        mock_session = mock_session_cls.return_value
+        mock_response = mock_session.get.return_value
+        mock_response.status_code = 200
+        mock_response.text = "<html><head><title>Test ETF | WKN | IE00TEST</title></head><body></body></html>"
+
+        with pytest.warns(UserWarning, match="No live quote for IE00TEST"):
+            result = get_etf_overview(
+                "IE00TEST", include_gettex=True, expand_allocations=False
+            )
+
         assert result["gettex"] is None
 
 
