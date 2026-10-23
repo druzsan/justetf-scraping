@@ -155,6 +155,8 @@ def _fetch_ajax_data(
     try:
         resp = session.get(ajax_url, headers=ajax_headers)
         if resp.status_code == 200 and resp.text:
+            if "<redirect>" in resp.text:
+                return None  # Wicket redirect = endpoint not available (e.g. access-denied)
             return resp.text
     except Exception as e:
         print(f"AJAX request error: {e}")
@@ -355,8 +357,11 @@ def get_etf_overview(
                 )
 
     # Parse countries
-    if expand_allocations:
-        # Try AJAX for full list
+    countries_has_more = bool(
+        soup.find(attrs={"data-testid": "etf-holdings_countries_load-more_link"})
+    )
+    if expand_allocations and countries_has_more:
+        # Try AJAX for full list (only when the "Show more" button exists in the page)
         countries_xml = _fetch_ajax_data(
             session, isin, "holdingsSection-countries-loadMoreCountries", "id6"
         )
@@ -383,8 +388,11 @@ def get_etf_overview(
         )
 
     # Parse sectors
-    if expand_allocations:
-        # Try AJAX for full list
+    sectors_has_more = bool(
+        soup.find(attrs={"data-testid": "etf-holdings_sectors_load-more_link"})
+    )
+    if expand_allocations and sectors_has_more:
+        # Try AJAX for full list (only when the "Show more" button exists in the page)
         sectors_xml = _fetch_ajax_data(
             session, isin, "holdingsSection-sectors-loadMoreSectors", "id7"
         )
