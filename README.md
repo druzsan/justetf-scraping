@@ -633,6 +633,17 @@ df
 </table>
 <p>7379 rows × 2 columns</p>
 
+Load intraday open, high, low and last quotes of the latest trading day (only gettex quotes in Euro are available):
+
+```python
+ohlc = justetf_scraping.load_intraday_ohlc("IE00B0M62Q58")
+ohlc
+```
+
+```
+IntradayOhlc(date=datetime.date(2026, 10, 23), open=93.01, high=93.26, low=92.46, last=92.85)
+```
+
 ### 💗 Scrape Live Quote
 
 > Currently, only Gettex exchange and Euro currency are supported by live quote.
