@@ -66,11 +66,11 @@ class RawChart(TypedDict):
     latestQuote: RawValue
     latestQuoteDate: str
     price: RawValue
-    performance: RawValue
+    performance: RawValue | None
     prevDaySeries: list[RawSeriesItem]
     series: list[RawSeriesItem]
     latestDate: str
-    endOfDay: str
+    endOfDay: str | None
     features: dict[str, list[RawSeriesItem]]
 
 
