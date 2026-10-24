@@ -74,6 +74,26 @@ class RawChart(TypedDict):
     features: dict[str, list[RawSeriesItem]]
 
 
+@dataclasses.dataclass
+class IntradayOhlc:
+    """
+    Intraday quotes of a trading day.
+
+    Attrs:
+        date: The trading day.
+        open: The first quote of the day.
+        high: The highest quote of the day.
+        low: The lowest quote of the day.
+        last: The last quote of the day.
+    """
+
+    date: datetime.date
+    open: float
+    high: float
+    low: float
+    last: float
+
+
 # "I" for initial quote, "D" for down, "U" for up, "N" for no change.
 RawQuoteTrend = Literal["I", "D", "U", "N"]
 

@@ -3,13 +3,19 @@ Scrape and compare ETF chart data from justETF
 (e.g. https://www.justetf.com/en/etf-profile.html?isin=IE00B4L5Y983#chart).
 """
 
-from typing import Literal, Optional
+from typing import Literal
 
 import pandas as pd
 import requests
 
 from .helpers import USER_AGENT, assert_response_status_ok
-from .types import Currency, RawChart, RawSeriesItem
+from .types import (
+    Currency,
+    IntradayOhlc,
+    RawChart,
+    RawSeriesItem,
+    parse_timestamp,
+)
 
 BASE_URL = "https://www.justetf.com/api/etfs/{isin}/performance-chart"
 BASE_PARAMS = {
@@ -20,11 +26,9 @@ BASE_PARAMS = {
     "features": "DIVIDENDS",
 }
 
-# Supported `period` values accepted by the justETF performance-chart endpoint.
-# "D1" returns the intraday (minute-by-minute) gettex series for the current
-# trading day under the "series" field and for the previous day under
-# "prevDaySeries". Other values (e.g. "MAX") behave like the default request.
-Period = Literal["D1", "W1", "M1", "M3", "M6", "Y1", "Y3", "Y5", "MAX"]
+# "D1" gives minute-by-minute gettex quotes of the latest trading day ("series")
+# and of the day before ("prevDaySeries"), only for EUR.
+Period = Literal["D1", "M1", "M3", "M6", "Y1", "Y3", "Y5", "MAX"]
 
 
 def parse_series(
@@ -46,19 +50,16 @@ def relative(series: pd.Series) -> pd.Series:
 
 
 def load_raw_chart(
-    isin: str, currency: Currency = "EUR", period: Optional[str] = None
+    isin: str, currency: Currency = "EUR", period: Period | None = None
 ) -> RawChart:
     """
-    Get a raw ETF chart for the whole time period.
+    Get a raw ETF chart.
 
     Args:
         isin: ISIN of an ETF.
         currency: Currency to get data in, see `Currency` for available options.
-        period: Optional justETF chart period (see `Period`). When ``None``
-            (default) the endpoint is queried without a ``period`` parameter,
-            preserving the historical behaviour. Pass ``"D1"`` to obtain the
-            intraday (minute-by-minute) gettex series for the current trading
-            day (only populated for ``currency="EUR"``).
+        period: Time period to get data for, see `Period` for available options.
+            If None, get data for the whole time period.
 
     Returns:
         Raw chart data as `RawChart`.
@@ -77,68 +78,29 @@ def load_raw_chart(
     return data
 
 
-def load_raw_series(
-    isin: str,
-    currency: Currency = "EUR",
-    period: str = "D1",
-    series_field: str = "series",
-) -> list[RawSeriesItem]:
+def load_intraday_ohlc(isin: str) -> IntradayOhlc | None:
     """
-    Generic helper returning the raw list of series points of a chart query.
+    Get intraday open, high, low and last quotes of the latest trading day.
 
-    This is a thin, reusable wrapper over `load_raw_chart` that extracts one of
-    the list-valued fields of the response (e.g. ``"series"`` or
-    ``"prevDaySeries"``). It performs no parsing or aggregation, so callers can
-    process the raw points however they need.
+    Only gettex quotes in EUR are available.
 
     Args:
         isin: ISIN of an ETF.
-        currency: Currency to get data in, see `Currency` for available options.
-        period: justETF chart period (see `Period`). Defaults to ``"D1"``
-            (intraday).
-        series_field: Name of the list-valued field to extract from the raw
-            response. Defaults to ``"series"`` (current day for ``period="D1"``);
-            use ``"prevDaySeries"`` for the previous day.
 
     Returns:
-        The raw list of series items (possibly empty, e.g. outside market hours
-        or for currencies other than EUR where the intraday feed is not
-        available).
+        Intraday quotes as `IntradayOhlc`, None if the ETF has no gettex quotes.
     """
-    data = load_raw_chart(isin, currency, period=period)
-    return data.get(series_field) or []
-
-
-def load_intraday_ohlc(isin: str, currency: Currency = "EUR") -> Optional[dict]:
-    """
-    Get the current-day intraday open/high/low/last from the gettex feed.
-
-    Uses the ``period="D1"`` chart, whose ``series`` field holds the current
-    trading day's minute-by-minute quotes. justETF only historizes the intraday
-    gettex feed in EUR, so for other currencies (or outside market hours) the
-    series is empty and this function returns ``None``.
-
-    Args:
-        isin: ISIN of an ETF.
-        currency: Currency to get data in. Only ``"EUR"`` yields intraday data.
-
-    Returns:
-        A dict ``{open, high, low, last, date}`` where prices are floats and
-        ``date`` is the ISO date string of the last intraday point, or ``None``
-        if no intraday data is available.
-    """
-    series = load_raw_series(isin, currency, period="D1", series_field="series")
-    if not series:
+    raw_series = load_raw_chart(isin, period="D1")["series"]
+    if not raw_series:
         return None
-    values = [point["value"]["raw"] for point in series]
-    last_date = series[-1]["date"][:10]
-    return {
-        "open": values[0],
-        "high": max(values),
-        "low": min(values),
-        "last": values[-1],
-        "date": last_date,
-    }
+    quotes = [sample["value"]["raw"] for sample in raw_series]
+    return IntradayOhlc(
+        date=parse_timestamp(raw_series[-1]["date"]).date(),
+        open=quotes[0],
+        high=max(quotes),
+        low=min(quotes),
+        last=quotes[-1],
+    )
 
 
 def load_chart(
