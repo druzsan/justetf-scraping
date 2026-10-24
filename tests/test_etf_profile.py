@@ -2,11 +2,12 @@
 Tests for `justetf_scraping.etf_profile` module.
 """
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from justetf_scraping.etf_profile import (
+    _fetch_ajax_data,
     _parse_allocation_from_ajax,
     _parse_percentage,
     get_etf_overview,
@@ -222,80 +223,7 @@ def test_parse_ajax_invalid_xml() -> None:
     assert result == []
 
 
-# --- Bug 3: AJAX called even when no "load more" button exists ---
-
-WICKET_REDIRECT_XML = """<?xml version="1.0" encoding="UTF-8"?>
-<ajax-response><redirect><![CDATA[/en/access-denied.html]]></redirect></ajax-response>"""
-
-MAIN_PAGE_HTML_WITH_SECTORS_NO_MORE = """
-<html><head><title>Test ETF | WKN | LU0TEST</title></head><body>
-<div data-testid="etf-holdings_sectors_container">
-  <table data-testid="etf-holdings_sectors_table">
-    <tr data-testid="etf-holdings_sectors_row">
-      <td data-testid="tl_etf-holdings_sectors_value_name">Technology</td>
-      <td><span data-testid="tl_etf-holdings_sectors_value_percentage">97.14%</span></td>
-    </tr>
-    <tr data-testid="etf-holdings_sectors_row">
-      <td data-testid="tl_etf-holdings_sectors_value_name">Other</td>
-      <td><span data-testid="tl_etf-holdings_sectors_value_percentage">2.86%</span></td>
-    </tr>
-  </table>
-  <!-- No load-more link here -->
-</div>
-<div data-testid="etf-holdings_countries_container">
-  <table data-testid="etf-holdings_countries_table">
-    <tr data-testid="etf-holdings_countries_row">
-      <td data-testid="tl_etf-holdings_countries_value_name">United States</td>
-      <td><span data-testid="tl_etf-holdings_countries_value_percentage">65.81%</span></td>
-    </tr>
-  </table>
-  <!-- No load-more link here -->
-</div>
-</body></html>"""
-
-
-def test_fetch_ajax_returns_none_on_wicket_redirect() -> None:
-    """Test that _fetch_ajax_data returns None when Wicket responds with a redirect."""
-    from justetf_scraping.etf_profile import _fetch_ajax_data
-
-    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
-        mock_session = mock_session_cls.return_value
-        mock_resp = mock_session.get.return_value
-        mock_resp.status_code = 200
-        mock_resp.text = WICKET_REDIRECT_XML
-
-        result = _fetch_ajax_data(mock_session, "LU0TEST", "some-endpoint", "id99")
-        assert result is None
-
-
-def test_get_etf_overview_sectors_fallback_when_no_load_more() -> None:
-    """Test that sectors are parsed from soup when no load-more button exists in page."""
-    with (
-        patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls,
-        patch("justetf_scraping.etf_profile.load_live_quote", return_value=None),
-    ):
-        mock_session = mock_session_cls.return_value
-        mock_resp = mock_session.get.return_value
-        mock_resp.status_code = 200
-        mock_resp.text = MAIN_PAGE_HTML_WITH_SECTORS_NO_MORE
-
-        result = get_etf_overview(
-            "LU0TEST", include_gettex=False, expand_allocations=True
-        )
-
-        # Sectors must come from soup (2 items), not be empty due to AJAX redirect
-        assert len(result["sectors"]) == 2
-        assert result["sectors"][0]["name"] == "Technology"
-        assert result["sectors"][0]["percentage"] == 97.14
-        assert result["sectors"][1]["name"] == "Other"
-        assert result["sectors"][1]["percentage"] == 2.86
-
-        # Countries from soup too (1 item)
-        assert len(result["countries"]) == 1
-        assert result["countries"][0]["name"] == "United States"
-
-
-# --- Bug 4: basic data read from the wrong table ---
+# --- Bug 3: basic data read from the wrong table ---
 
 # Current profile page layout (October 2026): the basics table comes first and
 # carries a data-testid; the second table holds fund structure data instead.
@@ -374,3 +302,110 @@ def test_overview_from_captured_page(etf_profile_html: str) -> None:
     assert result["sectors"][0] == {"name": "Technology", "percentage": 35.71}
     assert result["holdings_date"] == "31/08/2026"
     assert len(result["listings"]) == 10
+
+
+# --- Bug 4: AJAX called even when no "load more" link exists ---
+
+WICKET_REDIRECT_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<ajax-response><redirect><![CDATA[/en/access-denied.html]]></redirect></ajax-response>"""
+
+# Profile page of an ETF with few countries and sectors, e.g. LU1900066033.
+PROFILE_HTML_WITHOUT_LOAD_MORE = """
+<html><head><title>Test ETF | WKN | LU0TEST</title></head><body>
+<div data-testid="etf-holdings_sectors_container">
+  <table data-testid="etf-holdings_sectors_table">
+    <tr data-testid="etf-holdings_sectors_row">
+      <td data-testid="tl_etf-holdings_sectors_value_name">Technology</td>
+      <td><span data-testid="tl_etf-holdings_sectors_value_percentage">97.14%</span></td>
+    </tr>
+    <tr data-testid="etf-holdings_sectors_row">
+      <td data-testid="tl_etf-holdings_sectors_value_name">Other</td>
+      <td><span data-testid="tl_etf-holdings_sectors_value_percentage">2.86%</span></td>
+    </tr>
+  </table>
+  <!-- No load-more link here -->
+</div>
+<div data-testid="etf-holdings_countries_container">
+  <table data-testid="etf-holdings_countries_table">
+    <tr data-testid="etf-holdings_countries_row">
+      <td data-testid="tl_etf-holdings_countries_value_name">United States</td>
+      <td><span data-testid="tl_etf-holdings_countries_value_percentage">65.81%</span></td>
+    </tr>
+  </table>
+  <!-- No load-more link here -->
+</div>
+</body></html>"""
+
+
+def test_fetch_ajax_returns_none_on_wicket_redirect() -> None:
+    """Test that a Wicket redirect gives no AJAX data."""
+    session = MagicMock()
+    session.get.return_value = MagicMock(status_code=200, text=WICKET_REDIRECT_XML)
+
+    assert _fetch_ajax_data(session, "LU0TEST", "some-endpoint", "id99") is None
+
+
+def test_allocations_without_load_more() -> None:
+    """Test that allocations come from the page without AJAX if it has no load more links."""
+    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
+        mock_session = mock_session_cls.return_value
+        mock_session.get.return_value = MagicMock(
+            status_code=200, text=PROFILE_HTML_WITHOUT_LOAD_MORE
+        )
+
+        result = get_etf_overview(
+            "LU0TEST", include_gettex=False, expand_allocations=True
+        )
+
+        mock_session.get.assert_called_once()
+
+    assert result["countries"] == [{"name": "United States", "percentage": 65.81}]
+    assert result["sectors"] == [
+        {"name": "Technology", "percentage": 97.14},
+        {"name": "Other", "percentage": 2.86},
+    ]
+
+
+def test_allocations_with_load_more(etf_profile_html: str) -> None:
+    """Test that full allocations are loaded via AJAX if the page has load more links."""
+    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
+        mock_session = mock_session_cls.return_value
+        mock_session.get.side_effect = [
+            MagicMock(status_code=200, text=etf_profile_html),
+            MagicMock(status_code=200, text=COUNTRIES_AJAX_XML),
+            MagicMock(status_code=200, text=SECTORS_AJAX_XML),
+        ]
+
+        result = get_etf_overview(
+            "IE00B4L5Y983", include_gettex=False, expand_allocations=True
+        )
+
+        assert mock_session.get.call_count == 3
+
+    assert [country["name"] for country in result["countries"]] == [
+        "United States",
+        "Japan",
+        "United Kingdom",
+    ]
+    assert [sector["name"] for sector in result["sectors"]] == [
+        "Technology",
+        "Financials",
+    ]
+
+
+def test_allocations_with_unparsable_load_more(etf_profile_html: str) -> None:
+    """Test that allocations come from the page if AJAX data cannot be parsed."""
+    with patch("justetf_scraping.etf_profile.requests.Session") as mock_session_cls:
+        mock_session = mock_session_cls.return_value
+        mock_session.get.side_effect = [
+            MagicMock(status_code=200, text=etf_profile_html),
+            MagicMock(status_code=200, text="<ajax-response></ajax-response>"),
+            MagicMock(status_code=200, text="<ajax-response></ajax-response>"),
+        ]
+
+        result = get_etf_overview(
+            "IE00B4L5Y983", include_gettex=False, expand_allocations=True
+        )
+
+    assert result["countries"][0] == {"name": "United States", "percentage": 70.32}
+    assert result["sectors"][0] == {"name": "Technology", "percentage": 35.71}

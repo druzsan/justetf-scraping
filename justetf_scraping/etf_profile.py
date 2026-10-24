@@ -155,8 +155,9 @@ def _fetch_ajax_data(
     try:
         resp = session.get(ajax_url, headers=ajax_headers)
         if resp.status_code == 200 and resp.text:
+            # Wicket redirects (e.g. to access denied) if there is nothing to load
             if "<redirect>" in resp.text:
-                return None  # Wicket redirect = endpoint not available (e.g. access-denied)
+                return None
             return resp.text
     except Exception as e:
         print(f"AJAX request error: {e}")
@@ -356,67 +357,53 @@ def get_etf_overview(
                     HoldingItem(name=holding_name, percentage=pct, isin=holding_isin)
                 )
 
-    # Parse countries
-    countries_has_more = bool(
-        soup.find(attrs={"data-testid": "etf-holdings_countries_load-more_link"})
+    # Parse countries, load the full list only if the page offers to show more
+    countries = _parse_allocation_from_soup(
+        soup,
+        "etf-holdings_countries_row",
+        "tl_etf-holdings_countries_value_name",
+        "tl_etf-holdings_countries_value_percentage",
     )
-    if expand_allocations and countries_has_more:
-        # Try AJAX for full list (only when the "Show more" button exists in the page)
+    if expand_allocations and soup.find(
+        attrs={"data-testid": "etf-holdings_countries_load-more_link"}
+    ):
         countries_xml = _fetch_ajax_data(
             session, isin, "holdingsSection-countries-loadMoreCountries", "id6"
         )
         if countries_xml:
-            countries = _parse_allocation_from_ajax(
-                countries_xml,
-                "etf-holdings_countries_table",
-                "tl_etf-holdings_countries_value_name",
-                "tl_etf-holdings_countries_value_percentage",
+            countries = (
+                _parse_allocation_from_ajax(
+                    countries_xml,
+                    "etf-holdings_countries_table",
+                    "tl_etf-holdings_countries_value_name",
+                    "tl_etf-holdings_countries_value_percentage",
+                )
+                or countries
             )
-        else:
-            countries = _parse_allocation_from_soup(
-                soup,
-                "etf-holdings_countries_row",
-                "tl_etf-holdings_countries_value_name",
-                "tl_etf-holdings_countries_value_percentage",
-            )
-    else:
-        countries = _parse_allocation_from_soup(
-            soup,
-            "etf-holdings_countries_row",
-            "tl_etf-holdings_countries_value_name",
-            "tl_etf-holdings_countries_value_percentage",
-        )
 
-    # Parse sectors
-    sectors_has_more = bool(
-        soup.find(attrs={"data-testid": "etf-holdings_sectors_load-more_link"})
+    # Parse sectors, load the full list only if the page offers to show more
+    sectors = _parse_allocation_from_soup(
+        soup,
+        "etf-holdings_sectors_row",
+        "tl_etf-holdings_sectors_value_name",
+        "tl_etf-holdings_sectors_value_percentage",
     )
-    if expand_allocations and sectors_has_more:
-        # Try AJAX for full list (only when the "Show more" button exists in the page)
+    if expand_allocations and soup.find(
+        attrs={"data-testid": "etf-holdings_sectors_load-more_link"}
+    ):
         sectors_xml = _fetch_ajax_data(
             session, isin, "holdingsSection-sectors-loadMoreSectors", "id7"
         )
         if sectors_xml:
-            sectors = _parse_allocation_from_ajax(
-                sectors_xml,
-                "etf-holdings_sectors_table",
-                "tl_etf-holdings_sectors_value_name",
-                "tl_etf-holdings_sectors_value_percentage",
+            sectors = (
+                _parse_allocation_from_ajax(
+                    sectors_xml,
+                    "etf-holdings_sectors_table",
+                    "tl_etf-holdings_sectors_value_name",
+                    "tl_etf-holdings_sectors_value_percentage",
+                )
+                or sectors
             )
-        else:
-            sectors = _parse_allocation_from_soup(
-                soup,
-                "etf-holdings_sectors_row",
-                "tl_etf-holdings_sectors_value_name",
-                "tl_etf-holdings_sectors_value_percentage",
-            )
-    else:
-        sectors = _parse_allocation_from_soup(
-            soup,
-            "etf-holdings_sectors_row",
-            "tl_etf-holdings_sectors_value_name",
-            "tl_etf-holdings_sectors_value_percentage",
-        )
 
     # Parse holdings date
     ref_date_elem = soup.find(
