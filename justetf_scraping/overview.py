@@ -186,9 +186,15 @@ def _parse_dates(values: pd.Series) -> pd.Series:
             + ".",
             stacklevel=3,
         )
-    return pd.Series(
-        parsed, index=values.index, name=values.name, dtype="datetime64[ns]"
+    # Go through ISO strings so that the dtype is whatever `pd.to_datetime` gives
+    # for the installed pandas version (`None` becomes `NaT`).
+    iso_dates = pd.Series(
+        [None if date is None else date.date().isoformat() for date in parsed],
+        index=values.index,
+        name=values.name,
+        dtype=object,
     )
+    return pd.to_datetime(iso_dates, format="%Y-%m-%d")
 
 
 def make_etf_params(
