@@ -2,6 +2,7 @@
 Scrape ETF overview data from justETF (https://www.justetf.com/en/find-etf.html).
 """
 
+import datetime
 import itertools
 import re
 import warnings
@@ -129,6 +130,65 @@ FLOAT_COLUMNS = [
     "last_three_years_max_drawdown",
     "last_five_years_max_drawdown",
 ] + LAST_FOUR_YEARS
+
+
+# Date formats justETF used for the date columns of the search response, as
+# regular expressions with named groups. justETF switched from `dd.mm.yy` to
+# `dd/mm/yyyy` on 2026-11-24 without notice, so every known format is accepted.
+DATE_PATTERNS = (
+    re.compile(r"(?P<day>\d{1,2})\.(?P<month>\d{1,2})\.(?P<year>\d{2})"),  # dd.mm.yy
+    re.compile(r"(?P<day>\d{1,2})[./](?P<month>\d{1,2})[./](?P<year>\d{4})"),
+    re.compile(r"(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})"),  # ISO 8601
+)
+
+
+def _parse_date(value: str) -> datetime.datetime | None:
+    """
+    Parse a date written in any of the formats in `DATE_PATTERNS`, `None` if the
+    value matches none of them or is not a calendar date.
+
+    Two-digit years follow the `%y` convention (69-99 -> 19xx, 00-68 -> 20xx).
+    """
+    for pattern in DATE_PATTERNS:
+        if match := pattern.fullmatch(value.strip()):
+            year = int(match["year"])
+            if len(match["year"]) == 2:
+                year += 1900 if year >= 69 else 2000
+            try:
+                return datetime.datetime(year, int(match["month"]), int(match["day"]))
+            except ValueError:
+                return None
+    return None
+
+
+def _parse_dates(values: pd.Series) -> pd.Series:
+    """
+    Convert a column of date strings to `datetime64`.
+
+    Missing values (`NA`, as "-" placeholders are cleaned up to) become `NaT`.
+    Values that are not recognized as a date also become `NaT`, with a warning
+    listing them, so that a new justETF format doesn't make the whole overview
+    unusable nor silently yields wrong dates.
+    """
+    parsed = [None if pd.isna(value) else _parse_date(value) for value in values]
+    unrecognized = sorted(
+        {
+            value
+            for value, date in zip(values, parsed, strict=True)
+            if date is None and not pd.isna(value)
+        }
+    )
+    if unrecognized:
+        warnings.warn(
+            f"Cannot parse '{values.name}' values, they are set to missing: "
+            + ", ".join(f"'{value}'" for value in unrecognized[:5])
+            + (", ..." if len(unrecognized) > 5 else "")
+            + ".",
+            stacklevel=3,
+        )
+    return pd.Series(
+        parsed, index=values.index, name=values.name, dtype="datetime64[ns]"
+    )
 
 
 def make_etf_params(
@@ -425,7 +485,7 @@ def load_overview(
                 df[column].str.removesuffix("%").fillna("nan").astype("float64")
             )
     if "inception_date" in df:
-        df["inception_date"] = pd.to_datetime(df["inception_date"], format="%d.%m.%y")
+        df["inception_date"] = _parse_dates(df["inception_date"])
     # Enrich existing columns.
     if "inception_date" in df:
         columns = df.columns.tolist()
